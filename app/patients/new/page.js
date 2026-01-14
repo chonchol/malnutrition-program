@@ -245,25 +245,31 @@ export default function NewPatientPage() {
                 <h3 className="text-sm font-semibold text-slate-900">
                   Administrative Information
                 </h3>
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <div className="mt-3 grid md:grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
                       Date
-                    </label>
-                    <input
-                      type="date"
-                      name="startDate"
-                      // value={filters.startDate}
-                      // onChange={handleFilterChange}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40"
-                    />
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      তারিখ
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <input
+                        type="date"
+                        name="startDate"
+                        // value={filters.startDate}
+                        // onChange={handleFilterChange}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40"
+                      />
+                    </div>
                   </div>
+
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                     <p className="text-sm font-semibold text-slate-800">
                       Survey Type
                     </p>
                     <p className="text-xs text-slate-500">
-                      তোমার কি কখনো মনে হয়
+                      জরিপের ধরণ
                     </p>
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <RadioPill
@@ -291,7 +297,7 @@ export default function NewPatientPage() {
                       Which Follow Up?
                     </p>
                     <p className="text-xs text-slate-500">
-                      তোমার কি কখনো মনে হয়
+                      কোন ফলো-আপ?
                     </p>
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <RadioPill
@@ -314,13 +320,23 @@ export default function NewPatientPage() {
                       />
                     </div>
                   </div>
-                  <Input
-                    label="NIROG ID"
-                    type="text"
-                    value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    required
-                  />
+
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      NIROG ID
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      নীরোগ আইডি
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <Input
+                        type="text"
+                        value={form.address}
+                        onChange={(e) => setForm({ ...form, address: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -332,91 +348,110 @@ export default function NewPatientPage() {
                 <h3 className="text-sm font-semibold text-slate-900">
                   General Information
                 </h3>
-                <div>
-                  <label className="text-sm font-medium text-slate-700">
-                    Camp Name
-                  </label>
-                  <select
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                    value={form.campName}
-                    onChange={(e) => setForm({ ...form, campName: e.target.value })}
-                    required
-                  >
-                    <option value="">Select</option>
-                    {camps.map((camp) => (
-                      <option key={camp} value={camp}>
-                        {camp}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="mt-3 grid gap-3">
-                  <Input
-                    label="Patient Name"
-                    value={form.patientName}
-                    onChange={(e) =>
-                      setForm({ ...form, patientName: e.target.value })
-                    }
-                    required
-                  />
-                  <Input
-                    label="Age"
-                    type="number"
-                    value={form.age}
-                    onChange={(e) => setForm({ ...form, age: e.target.value })}
-                    required
-                  />
-                  <div>
-                    <label className="text-sm font-medium text-slate-700">
-                      Gender
-                    </label>
-                    <select
-                      className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                      value={form.gender}
-                      onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                      required
-                    >
-                      <option value="">Select</option>
-                      <option value="Female">Female</option>
-                      <option value="Male">Male</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  <Input
-                    label="Address"
-                    type="text"
-                    value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
 
-              {/* <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-slate-900">
-                Malnutrition Assessment
-              </h3>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <Input
-                  label="Height (cm)"
-                  type="number"
-                  value={form.heightCm}
-                  onChange={(e) => setForm({ ...form, heightCm: e.target.value })}
-                />
-                <Input
-                  label="Weight (kg)"
-                  type="number"
-                  value={form.weightKg}
-                  onChange={(e) => setForm({ ...form, weightKg: e.target.value })}
-                />
-                <Input
-                  label="MUAC (cm)"
-                  type="number"
-                  value={form.muacCm}
-                  onChange={(e) => setForm({ ...form, muacCm: e.target.value })}
-                />
+                <div className="mt-3 grid md:grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Camp Name
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      ক্যাম্পের নাম
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <select
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                        value={form.campName}
+                        onChange={(e) => setForm({ ...form, campName: e.target.value })}
+                        required
+                      >
+                        <option value="">Select</option>
+                        {camps.map((camp) => (
+                          <option key={camp} value={camp}>
+                            {camp}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Patient Name
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      রোগীর নাম
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <Input
+                        value={form.patientName}
+                        onChange={(e) =>
+                          setForm({ ...form, patientName: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Age
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      বয়স
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+
+                      <Input
+                        type="number"
+                        value={form.age}
+                        onChange={(e) => setForm({ ...form, age: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Gender
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      জেন্ডার
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <select
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                        value={form.gender}
+                        onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                        required
+                      >
+                        <option value="">Select</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Address
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      ঠিকানা
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+
+                      <Input
+                        type="text"
+                        value={form.address}
+                        onChange={(e) => setForm({ ...form, address: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                </div>
               </div>
-            </div> */}
             </section>
           )}
 
@@ -804,7 +839,7 @@ function PlanRow({ label, score, active, note }) {
 
 function Input({ label, ...rest }) {
   return (
-    <div>
+    <div className="w-full">
       <label className="text-sm font-medium text-slate-700">{label}</label>
       <input
         {...rest}
