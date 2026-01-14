@@ -1,0 +1,32 @@
+{
+  "name": "malnutrition-mentalhealth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "chart.js": "^4.4.6",
+    "date-fns": "^4.1.0",
+    "idb-keyval": "^6.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.8.1",
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "19.2.3",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "tailwindcss": "^4"
+  }
+}
