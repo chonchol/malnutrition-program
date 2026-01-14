@@ -15,12 +15,12 @@ export default function Home() {
         <header className="flex items-center justify-between rounded-3xl glass px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-400 text-white text-xl font-semibold">
-              NM
+              H
             </div>
             <div>
               <p className="text-sm text-slate-500">Camp Health Stack</p>
               <h1 className="text-xl font-semibold text-slate-900">
-                NourishMind
+                Malnutrition Programm
               </h1>
             </div>
           </div>

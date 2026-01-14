@@ -1,43 +1,43 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { clearQueue, getQueuedAssessments, queueAssessment } from "@/lib/offlineQueue";
 import { mentalHealthQuestions, responseOptions } from "@/lib/questions";
-import { queueAssessment, getQueuedAssessments, clearQueue } from "@/lib/offlineQueue";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const camps = ["Camp 1E", 
-    "Camp 1W - Kutupalong",
-    "Camp 2E",
-    "Camp 2W",
-    "Camp 03",
-    "Camp 04",
-    "Camp 04 Ext",
-    "Camp 05",
-    "Camp 06",
-    "Camp 07",
-    "Camp 8E",
-    "Camp 8W",
-    "Camp 09 - Balukhali",
-    "Camp 10",
-    "Camp 11",
-    "Camp 12",
-    "Camp 13",
-    "Camp 14 - Hakimpara",
-    "Camp 15 - Jamtoli",
-    "Camp 16 - Potibonia",
-    "Camp 17",
-    "Camp 18",
-    "Camp 19",
-    "Camp 20",
-    "Camp 20 Ext",
-    "Camp 21 - Chakmarkul",
-    "Camp 22 - Unchiprang",
-    "Camp 23 - Shamlapur",
-    "Camp 24 - Leda",
-    "Camp 25 - Ali Khali",
-    "Camp 26 - Nayapara",
-    "Camp 27 - Jadimura",
-    "Other"];
+const camps = ["Camp 1E",
+  "Camp 1W - Kutupalong",
+  "Camp 2E",
+  "Camp 2W",
+  "Camp 03",
+  "Camp 04",
+  "Camp 04 Ext",
+  "Camp 05",
+  "Camp 06",
+  "Camp 07",
+  "Camp 8E",
+  "Camp 8W",
+  "Camp 09 - Balukhali",
+  "Camp 10",
+  "Camp 11",
+  "Camp 12",
+  "Camp 13",
+  "Camp 14 - Hakimpara",
+  "Camp 15 - Jamtoli",
+  "Camp 16 - Potibonia",
+  "Camp 17",
+  "Camp 18",
+  "Camp 19",
+  "Camp 20",
+  "Camp 20 Ext",
+  "Camp 21 - Chakmarkul",
+  "Camp 22 - Unchiprang",
+  "Camp 23 - Shamlapur",
+  "Camp 24 - Leda",
+  "Camp 25 - Ali Khali",
+  "Camp 26 - Nayapara",
+  "Camp 27 - Jadimura",
+  "Other"];
 
 
 
@@ -63,6 +63,7 @@ export default function NewPatientPage() {
   const [queuedCount, setQueuedCount] = useState(0);
   const [step, setStep] = useState(0);
   const [referralOrg, setReferralOrg] = useState("");
+  const [isOnline, setIsOnline] = useState(true);
 
   const mentalPayload = useMemo(
     () =>
@@ -82,12 +83,12 @@ export default function NewPatientPage() {
           resp === "Never"
             ? 0
             : resp === "Sometimes"
-            ? 1
-            : resp === "Often"
-            ? 2
-            : resp === "Always"
-            ? 6
-            : 0;
+              ? 1
+              : resp === "Often"
+                ? 2
+                : resp === "Always"
+                  ? 6
+                  : 0;
         return sum + value;
       }, 0),
     [responses]
@@ -133,9 +134,21 @@ export default function NewPatientPage() {
   };
 
   useEffect(() => {
-    const handler = () => syncQueue();
-    window.addEventListener("online", handler);
-    return () => window.removeEventListener("online", handler);
+    const updateOnlineStatus = () => {
+      setIsOnline(navigator.onLine);
+    };
+    updateOnlineStatus();
+    const onlineHandler = () => {
+      setIsOnline(true);
+      syncQueue();
+    };
+    const offlineHandler = () => setIsOnline(false);
+    window.addEventListener("online", onlineHandler);
+    window.addEventListener("offline", offlineHandler);
+    return () => {
+      window.removeEventListener("online", onlineHandler);
+      window.removeEventListener("offline", offlineHandler);
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -199,15 +212,12 @@ export default function NewPatientPage() {
           </div>
           <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm">
             <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                typeof navigator === "undefined" || navigator.onLine
-                  ? "bg-emerald-500"
-                  : "bg-amber-400"
-              }`}
+              className={`h-2.5 w-2.5 rounded-full ${isOnline
+                ? "bg-emerald-500"
+                : "bg-amber-400"
+                }`}
             />
-            {typeof navigator === "undefined" || navigator.onLine
-              ? "Online"
-              : "Offline mode"}
+            {isOnline ? "Online" : "Offline mode"}
             {queuedCount > 0 && (
               <span className="ml-2 rounded-full bg-slate-900 px-2 py-0.5 text-xs font-semibold text-white">
                 {queuedCount} queued
@@ -230,12 +240,62 @@ export default function NewPatientPage() {
           <StepHeader step={step} />
 
           {step === 0 && (
-          <section className="grid gap-4 md:grid-cols-1">
-            <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-slate-900">
-                General Information
-              </h3>
-              <div>
+            <section className="grid gap-4 md:grid-cols-1">
+              <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Administrative Information
+                </h3>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <Input
+                    label="Patient Name"
+                    value={form.patientName}
+                    onChange={(e) =>
+                      setForm({ ...form, patientName: e.target.value })
+                    }
+                    required
+                  />
+                  <Input
+                    label="Age"
+                    type="number"
+                    value={form.age}
+                    onChange={(e) => setForm({ ...form, age: e.target.value })}
+                    required
+                  />
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Gender
+                    </label>
+                    <select
+                      className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                      value={form.gender}
+                      onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                      required
+                    >
+                      <option value="">Select</option>
+                      <option value="Female">Female</option>
+                      <option value="Male">Male</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <Input
+                    label="NIROG ID"
+                    type="text"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {step === 1 && (
+            <section className="grid gap-4 md:grid-cols-1">
+              <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  General Information
+                </h3>
+                <div>
                   <label className="text-sm font-medium text-slate-700">
                     Camp Name
                   </label>
@@ -253,49 +313,49 @@ export default function NewPatientPage() {
                     ))}
                   </select>
                 </div>
-              <div className="mt-3 grid gap-3">
-                <Input
-                  label="Patient Name"
-                  value={form.patientName}
-                  onChange={(e) =>
-                    setForm({ ...form, patientName: e.target.value })
-                  }
-                  required
-                />
-                <Input
-                  label="Age"
-                  type="number"
-                  value={form.age}
-                  onChange={(e) => setForm({ ...form, age: e.target.value })}
-                  required
-                />
-                <div>
-                  <label className="text-sm font-medium text-slate-700">
-                    Gender
-                  </label>
-                  <select
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                    value={form.gender}
-                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                <div className="mt-3 grid gap-3">
+                  <Input
+                    label="Patient Name"
+                    value={form.patientName}
+                    onChange={(e) =>
+                      setForm({ ...form, patientName: e.target.value })
+                    }
                     required
-                  >
-                    <option value="">Select</option>
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  />
+                  <Input
+                    label="Age"
+                    type="number"
+                    value={form.age}
+                    onChange={(e) => setForm({ ...form, age: e.target.value })}
+                    required
+                  />
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Gender
+                    </label>
+                    <select
+                      className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                      value={form.gender}
+                      onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                      required
+                    >
+                      <option value="">Select</option>
+                      <option value="Female">Female</option>
+                      <option value="Male">Male</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <Input
+                    label="Address"
+                    type="text"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    required
+                  />
                 </div>
-                <Input
-                  label="Address"
-                  type="text"
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  required
-                />
               </div>
-            </div>
 
-            {/* <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
+              {/* <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900">
                 Malnutrition Assessment
               </h3>
@@ -320,10 +380,10 @@ export default function NewPatientPage() {
                 />
               </div>
             </div> */}
-          </section>
+            </section>
           )}
 
-          {step === 1 && (
+          {step === 2 && (
             <section className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900">
                 School & Family Background
@@ -448,7 +508,7 @@ export default function NewPatientPage() {
             </section>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <section className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900">
                 Malnutrition Assessment
@@ -476,7 +536,7 @@ export default function NewPatientPage() {
             </section>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <section className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900">
                 Mental Health Assessment
@@ -493,11 +553,10 @@ export default function NewPatientPage() {
                       {responseOptions.map((opt) => (
                         <label
                           key={opt}
-                          className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${
-                            responses[q.key] === opt
-                              ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                              : "border-slate-200 text-slate-700"
-                          }`}
+                          className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${responses[q.key] === opt
+                            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                            : "border-slate-200 text-slate-700"
+                            }`}
                         >
                           <input
                             type="radio"
@@ -520,7 +579,7 @@ export default function NewPatientPage() {
             </section>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <section className="space-y-4 rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900">
                 Management Plan
@@ -606,16 +665,16 @@ export default function NewPatientPage() {
               )}
             </div>
             <div className="flex gap-2">
-              {step < 4 && (
+              {step < 5 && (
                 <button
                   type="button"
-                  onClick={() => setStep((s) => Math.min(4, s + 1))}
+                  onClick={() => setStep((s) => Math.min(5, s + 1))}
                   className="rounded-2xl bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/70"
                 >
                   Next
                 </button>
               )}
-              {step === 4 && (
+              {step === 5 && (
                 <button
                   type="submit"
                   className="rounded-2xl bg-gradient-to-r from-sky-500 to-emerald-400 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/60"
@@ -633,6 +692,7 @@ export default function NewPatientPage() {
 
 function StepHeader({ step }) {
   const steps = [
+    "Administrative info",
     "General information",
     "School & family",
     "Malnutrition",
@@ -644,11 +704,10 @@ function StepHeader({ step }) {
       {steps.map((label, index) => (
         <div
           key={label}
-          className={`flex items-center gap-1 rounded-full px-3 py-1 ${
-            step === index
-              ? "bg-emerald-100 text-emerald-800"
-              : "bg-white text-slate-600"
-          }`}
+          className={`flex items-center gap-1 rounded-full px-3 py-1 ${step === index
+            ? "bg-emerald-100 text-emerald-800"
+            : "bg-white text-slate-600"
+            }`}
         >
           <span className="text-[11px] font-semibold">{index + 1}</span>
           <span className="hidden sm:inline">{label}</span>
@@ -661,11 +720,10 @@ function StepHeader({ step }) {
 function PlanRow({ label, score, active, note }) {
   return (
     <div
-      className={`rounded-xl border px-3 py-2 text-sm ${
-        active
-          ? "border-emerald-400 bg-emerald-50"
-          : "border-slate-200 bg-white"
-      }`}
+      className={`rounded-xl border px-3 py-2 text-sm ${active
+        ? "border-emerald-400 bg-emerald-50"
+        : "border-slate-200 bg-white"
+        }`}
     >
       <p className="font-semibold text-slate-800">
         Total Score: {Number.isNaN(score) ? "0" : score} - Status: {label}
@@ -690,11 +748,10 @@ function Input({ label, ...rest }) {
 function RadioPill({ name, label, value, checked, onChange }) {
   return (
     <label
-      className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-        checked
-          ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-          : "border-slate-200 text-slate-700"
-      }`}
+      className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${checked
+        ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+        : "border-slate-200 text-slate-700"
+        }`}
     >
       <input
         type="radio"
