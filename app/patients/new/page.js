@@ -246,36 +246,73 @@ export default function NewPatientPage() {
                   Administrative Information
                 </h3>
                 <div className="mt-3 grid grid-cols-2 gap-3">
-                  <Input
-                    label="Patient Name"
-                    value={form.patientName}
-                    onChange={(e) =>
-                      setForm({ ...form, patientName: e.target.value })
-                    }
-                    required
-                  />
-                  <Input
-                    label="Age"
-                    type="number"
-                    value={form.age}
-                    onChange={(e) => setForm({ ...form, age: e.target.value })}
-                    required
-                  />
                   <div>
-                    <label className="text-sm font-medium text-slate-700">
-                      Gender
+                    <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Date
                     </label>
-                    <select
-                      className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                      value={form.gender}
-                      onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                      required
-                    >
-                      <option value="">Select</option>
-                      <option value="Female">Female</option>
-                      <option value="Male">Male</option>
-                      <option value="Other">Other</option>
-                    </select>
+                    <input
+                      type="date"
+                      name="startDate"
+                      // value={filters.startDate}
+                      // onChange={handleFilterChange}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40"
+                    />
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Survey Type
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      তোমার কি কখনো মনে হয়
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <RadioPill
+                        name="livesWithParents"
+                        label="New Patient"
+                        value="yes"
+                        checked={form.livesWithParents === "yes"}
+                        onChange={(value) =>
+                          setForm((prev) => ({ ...prev, livesWithParents: value }))
+                        }
+                      />
+                      <RadioPill
+                        name="livesWithParents"
+                        label="Follow Up Patient"
+                        value="no"
+                        checked={form.livesWithParents === "no"}
+                        onChange={(value) =>
+                          setForm((prev) => ({ ...prev, livesWithParents: value }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Which Follow Up?
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      তোমার কি কখনো মনে হয়
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                      <RadioPill
+                        name="livesWithParents"
+                        label="Malnutrition"
+                        value="yes"
+                        checked={form.livesWithParents === "yes"}
+                        onChange={(value) =>
+                          setForm((prev) => ({ ...prev, livesWithParents: value }))
+                        }
+                      />
+                      <RadioPill
+                        name="livesWithParents"
+                        label="Mental Health"
+                        value="no"
+                        checked={form.livesWithParents === "no"}
+                        onChange={(value) =>
+                          setForm((prev) => ({ ...prev, livesWithParents: value }))
+                        }
+                      />
+                    </div>
                   </div>
                   <Input
                     label="NIROG ID"
@@ -575,6 +612,38 @@ export default function NewPatientPage() {
                     </div>
                   </div>
                 ))}
+
+                <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                  <p className="text-sm font-semibold text-slate-800">
+                    Do you ever feel like your life has no meaning, like you are failure, or that life is not worth living, to the point that you think about hurting yourself?
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    তোমার কি কখনো মনে হয় যে তোমার জীবনের কোনো মানে নেই, তুমি ব্যর্থ, বেচে থাকাটা এতটাই কঠিন মনে হয় যে নিজের ক্ষতি করার কথাও ভাবো?
+                  </p>
+                  <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                    <RadioPill
+                      name="livesWithParents"
+                      label="Yes"
+                      value="yes"
+                      checked={form.livesWithParents === "yes"}
+                      onChange={(value) =>
+                        setForm((prev) => ({ ...prev, livesWithParents: value }))
+                      }
+                    />
+                    <RadioPill
+                      name="livesWithParents"
+                      label="No"
+                      value="no"
+                      checked={form.livesWithParents === "no"}
+                      onChange={(value) =>
+                        setForm((prev) => ({ ...prev, livesWithParents: value }))
+                      }
+                    />
+                  </div>
+                </div>
+
+
+
               </div>
             </section>
           )}
