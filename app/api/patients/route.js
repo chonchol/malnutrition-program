@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { getUserFromRequest } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
 import Assessment from "@/models/Assessment";
-import { getUserFromRequest } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const user = await getUserFromRequest();
@@ -20,11 +20,13 @@ export async function POST(req) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const data = await req.json();
+    console.log("Received data:", data);
     await connectToDatabase();
     const doc = await Assessment.create({ ...data, createdBy: user.id });
+    console.log("Saved document:", doc);
     return NextResponse.json({ assessment: doc });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Unable to save" }, { status: 500 });
+    console.error("Error saving assessment:", error);
+    return NextResponse.json({ error: "Unable to save", details: error.message }, { status: 500 });
   }
 }

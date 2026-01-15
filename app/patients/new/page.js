@@ -44,6 +44,10 @@ const camps = ["Camp 1E",
 export default function NewPatientPage() {
   const router = useRouter();
   const [form, setForm] = useState({
+    date: "",
+    surveyType: "",
+    surveyStatus: "",
+    nirogId: "",
     campName: "",
     patientName: "",
     age: "",
@@ -64,6 +68,7 @@ export default function NewPatientPage() {
   const [step, setStep] = useState(0);
   const [referralOrg, setReferralOrg] = useState("");
   const [isOnline, setIsOnline] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const mentalPayload = useMemo(
     () =>
@@ -99,6 +104,69 @@ export default function NewPatientPage() {
     if (totalScore >= 10) return "moderate";
     return "low";
   }, [totalScore]);
+
+  const validateStep = (currentStep) => {
+    const newErrors = {};
+
+    if (currentStep === 0) {
+      if (!form.date) newErrors.date = "Date is required";
+      if (!form.surveyType) newErrors.surveyType = "Survey type is required";
+      if (form.surveyType === "followup" && !form.surveyStatus) newErrors.surveyStatus = "Follow up type is required";
+      if (!form.nirogId) newErrors.nirogId = "NIROG ID is required";
+    } else if (currentStep === 1) {
+      if (!form.campName) newErrors.campName = "Camp name is required";
+      if (!form.patientName) newErrors.patientName = "Patient name is required";
+      if (!form.age) newErrors.age = "Age is required";
+      if (!form.gender) newErrors.gender = "Gender is required";
+      if (!form.address) newErrors.address = "Address is required";
+    } else if (currentStep === 2) {
+      if (!form.schoolStatus) newErrors.schoolStatus = "School status is required";
+      if (!form.campStayYears) newErrors.campStayYears = "Duration of stay is required";
+      if (!form.livesWithParents) newErrors.livesWithParents = "Family status is required";
+      if (!form.familySize) newErrors.familySize = "Family size is required";
+    } else if (currentStep === 3) {
+      if (!form.heightCm) newErrors.heightCm = "Height is required";
+      if (!form.weightKg) newErrors.weightKg = "Weight is required";
+      if (!form.muacCm) newErrors.muacCm = "MUAC is required";
+    } else if (currentStep === 4) {
+      const unanswered = mentalHealthQuestions.filter(q => !responses[q.key]);
+      if (unanswered.length > 0) {
+        newErrors.mentalHealth = `${unanswered.length} question(s) not answered`;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep(step)) {
+      setErrors({});
+      setStep((s) => Math.min(5, s + 1));
+    }
+  };
+
+  const clearFieldError = (fieldName) => {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldName];
+      return newErrors;
+    });
+  };
+
+  const handleFormChange = (fieldName, value) => {
+    // Clear error for this field if it has a value
+    if (value) {
+      clearFieldError(fieldName);
+    }
+  };
+
+  const handleResponseChange = (key, value) => {
+    // Clear mental health error if any question is answered
+    if (value) {
+      clearFieldError('mentalHealth');
+    }
+  };
 
   const refreshQueueCount = useCallback(async () => {
     const queued = await getQueuedAssessments();
@@ -153,10 +221,11 @@ export default function NewPatientPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (step !== 4) return;
+    if (step !== 5) return;
     setStatus("");
     const payload = {
       ...form,
+      date: form.date ? new Date(form.date) : new Date(),
       age: Number(form.age),
       campStayYears: form.campStayYears ? Number(form.campStayYears) : undefined,
       familySize: form.familySize ? Number(form.familySize) : undefined,
@@ -176,7 +245,8 @@ export default function NewPatientPage() {
       });
       if (!res.ok) throw new Error("failed");
       setStatus("Saved to server");
-      router.refresh();
+      // router.refresh();
+      router.push('/patients/new');
     };
 
     if (typeof navigator === "undefined" || !navigator.onLine) {
@@ -256,12 +326,17 @@ export default function NewPatientPage() {
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <input
                         type="date"
-                        name="startDate"
-                        // value={filters.startDate}
-                        // onChange={handleFilterChange}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40"
+                        name="date"
+                        value={form.date}
+                        onChange={(e) => {
+                          setForm((prev) => ({ ...prev, date: e.target.value }));
+                          handleFormChange('date', e.target.value);
+                        }}
+                        className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors ${errors.date ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100" : "border-slate-200 hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                          } dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40`}
                       />
                     </div>
+                    {errors.date && <p className="mt-1 text-xs font-medium text-red-600">{errors.date}</p>}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -273,24 +348,29 @@ export default function NewPatientPage() {
                     </p>
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <RadioPill
-                        name="livesWithParents"
+                        name="surveyType"
                         label="New Patient"
-                        value="yes"
-                        checked={form.livesWithParents === "yes"}
-                        onChange={(value) =>
-                          setForm((prev) => ({ ...prev, livesWithParents: value }))
-                        }
+                        value="new"
+                        checked={form.surveyType === "new"}
+                        onChange={(value) => {
+                          setForm((prev) => ({ ...prev, surveyType: value }));
+                          handleFormChange('surveyType', value);
+                        }}
+                        error={errors.surveyType}
                       />
                       <RadioPill
-                        name="livesWithParents"
+                        name="surveyType"
                         label="Follow Up Patient"
-                        value="no"
-                        checked={form.livesWithParents === "no"}
-                        onChange={(value) =>
-                          setForm((prev) => ({ ...prev, livesWithParents: value }))
-                        }
+                        value="followup"
+                        checked={form.surveyType === "followup"}
+                        onChange={(value) => {
+                          setForm((prev) => ({ ...prev, surveyType: value }));
+                          handleFormChange('surveyType', value);
+                        }}
+                        error={errors.surveyType}
                       />
                     </div>
+                    {errors.surveyType && <p className="mt-2 text-xs font-medium text-red-600">{errors.surveyType}</p>}
                   </div>
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                     <p className="text-sm font-semibold text-slate-800">
@@ -301,24 +381,29 @@ export default function NewPatientPage() {
                     </p>
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <RadioPill
-                        name="livesWithParents"
+                        name="surveyStatus"
                         label="Malnutrition"
-                        value="yes"
-                        checked={form.livesWithParents === "yes"}
-                        onChange={(value) =>
-                          setForm((prev) => ({ ...prev, livesWithParents: value }))
-                        }
+                        value="malnutrition"
+                        checked={form.surveyStatus === "malnutrition"}
+                        onChange={(value) => {
+                          setForm((prev) => ({ ...prev, surveyStatus: value }));
+                          handleFormChange('surveyStatus', value);
+                        }}
+                        error={errors.surveyStatus}
                       />
                       <RadioPill
-                        name="livesWithParents"
+                        name="surveyStatus"
                         label="Mental Health"
-                        value="no"
-                        checked={form.livesWithParents === "no"}
-                        onChange={(value) =>
-                          setForm((prev) => ({ ...prev, livesWithParents: value }))
-                        }
+                        value="mentalhealth"
+                        checked={form.surveyStatus === "mentalhealth"}
+                        onChange={(value) => {
+                          setForm((prev) => ({ ...prev, surveyStatus: value }));
+                          handleFormChange('surveyStatus', value);
+                        }}
+                        error={errors.surveyStatus}
                       />
                     </div>
+                    {errors.surveyStatus && <p className="mt-2 text-xs font-medium text-red-600">{errors.surveyStatus}</p>}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -331,8 +416,12 @@ export default function NewPatientPage() {
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <Input
                         type="text"
-                        value={form.address}
-                        onChange={(e) => setForm({ ...form, address: e.target.value })}
+                        value={form.nirogId}
+                        onChange={(e) => {
+                          setForm({ ...form, nirogId: e.target.value });
+                          handleFormChange('nirogId', e.target.value);
+                        }}
+                        error={errors.nirogId}
                         required
                       />
                     </div>
@@ -359,9 +448,15 @@ export default function NewPatientPage() {
                     </p>
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <select
-                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                        className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${errors.campName
+                          ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                          : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                          }`}
                         value={form.campName}
-                        onChange={(e) => setForm({ ...form, campName: e.target.value })}
+                        onChange={(e) => {
+                          setForm({ ...form, campName: e.target.value });
+                          handleFormChange('campName', e.target.value);
+                        }}
                         required
                       >
                         <option value="">Select</option>
@@ -372,6 +467,7 @@ export default function NewPatientPage() {
                         ))}
                       </select>
                     </div>
+                    {errors.campName && <p className="mt-1 text-xs font-medium text-red-600">{errors.campName}</p>}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -384,9 +480,11 @@ export default function NewPatientPage() {
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <Input
                         value={form.patientName}
-                        onChange={(e) =>
-                          setForm({ ...form, patientName: e.target.value })
-                        }
+                        onChange={(e) => {
+                          setForm({ ...form, patientName: e.target.value });
+                          handleFormChange('patientName', e.target.value);
+                        }}
+                        error={errors.patientName}
                         required
                       />
                     </div>
@@ -404,7 +502,11 @@ export default function NewPatientPage() {
                       <Input
                         type="number"
                         value={form.age}
-                        onChange={(e) => setForm({ ...form, age: e.target.value })}
+                        onChange={(e) => {
+                          setForm({ ...form, age: e.target.value });
+                          handleFormChange('age', e.target.value);
+                        }}
+                        error={errors.age}
                         required
                       />
                     </div>
@@ -419,9 +521,15 @@ export default function NewPatientPage() {
                     </p>
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <select
-                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                        className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${errors.gender
+                          ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                          : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                          }`}
                         value={form.gender}
-                        onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                        onChange={(e) => {
+                          setForm({ ...form, gender: e.target.value });
+                          handleFormChange('gender', e.target.value);
+                        }}
                         required
                       >
                         <option value="">Select</option>
@@ -430,6 +538,7 @@ export default function NewPatientPage() {
                         <option value="Other">Other</option>
                       </select>
                     </div>
+                    {errors.gender && <p className="mt-1 text-xs font-medium text-red-600">{errors.gender}</p>}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -444,7 +553,11 @@ export default function NewPatientPage() {
                       <Input
                         type="text"
                         value={form.address}
-                        onChange={(e) => setForm({ ...form, address: e.target.value })}
+                        onChange={(e) => {
+                          setForm({ ...form, address: e.target.value });
+                          handleFormChange('address', e.target.value);
+                        }}
+                        error={errors.address}
                         required
                       />
                     </div>
@@ -474,20 +587,25 @@ export default function NewPatientPage() {
                       label="Attending School"
                       value="attending"
                       checked={form.schoolStatus === "attending"}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, schoolStatus: value }))
-                      }
+                      onChange={(value) => {
+                        setForm((prev) => ({ ...prev, schoolStatus: value }));
+                        handleFormChange('schoolStatus', value);
+                      }}
+                      error={errors.schoolStatus}
                     />
                     <RadioPill
                       name="schoolStatus"
                       label="Not attending School"
                       value="not_attending"
                       checked={form.schoolStatus === "not_attending"}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, schoolStatus: value }))
-                      }
+                      onChange={(value) => {
+                        setForm((prev) => ({ ...prev, schoolStatus: value }));
+                        handleFormChange('schoolStatus', value);
+                      }}
+                      error={errors.schoolStatus}
                     />
                   </div>
+                  {errors.schoolStatus && <p className="mt-2 text-xs font-medium text-red-600">{errors.schoolStatus}</p>}
                 </div>
 
                 <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -505,15 +623,18 @@ export default function NewPatientPage() {
                         label={`${year} ${year === 1 ? "Year" : "Years"}`}
                         value={String(year)}
                         checked={Number(form.campStayYears) === year}
-                        onChange={(value) =>
+                        onChange={(value) => {
                           setForm((prev) => ({
                             ...prev,
                             campStayYears: value,
-                          }))
-                        }
+                          }));
+                          handleFormChange('campStayYears', value);
+                        }}
+                        error={errors.campStayYears}
                       />
                     ))}
                   </div>
+                  {errors.campStayYears && <p className="mt-2 text-xs font-medium text-red-600">{errors.campStayYears}</p>}
                 </div>
 
                 <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -529,20 +650,25 @@ export default function NewPatientPage() {
                       label="Yes"
                       value="yes"
                       checked={form.livesWithParents === "yes"}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, livesWithParents: value }))
-                      }
+                      onChange={(value) => {
+                        setForm((prev) => ({ ...prev, livesWithParents: value }));
+                        handleFormChange('livesWithParents', value);
+                      }}
+                      error={errors.livesWithParents}
                     />
                     <RadioPill
                       name="livesWithParents"
                       label="No"
                       value="no"
                       checked={form.livesWithParents === "no"}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, livesWithParents: value }))
-                      }
+                      onChange={(value) => {
+                        setForm((prev) => ({ ...prev, livesWithParents: value }));
+                        handleFormChange('livesWithParents', value);
+                      }}
+                      error={errors.livesWithParents}
                     />
                   </div>
+                  {errors.livesWithParents && <p className="mt-2 text-xs font-medium text-red-600">{errors.livesWithParents}</p>}
                 </div>
 
                 <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -560,9 +686,11 @@ export default function NewPatientPage() {
                         label={String(num)}
                         value={String(num)}
                         checked={Number(form.familySize) === num}
-                        onChange={(value) =>
-                          setForm((prev) => ({ ...prev, familySize: value }))
-                        }
+                        onChange={(value) => {
+                          setForm((prev) => ({ ...prev, familySize: value }));
+                          handleFormChange('familySize', value);
+                        }}
+                        error={errors.familySize}
                       />
                     ))}
                     <RadioPill
@@ -570,11 +698,14 @@ export default function NewPatientPage() {
                       label="10+"
                       value="10"
                       checked={Number(form.familySize) === 10}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, familySize: value }))
-                      }
+                      onChange={(value) => {
+                        setForm((prev) => ({ ...prev, familySize: value }));
+                        handleFormChange('familySize', value);
+                      }}
+                      error={errors.familySize}
                     />
                   </div>
+                  {errors.familySize && <p className="mt-2 text-xs font-medium text-red-600">{errors.familySize}</p>}
                 </div>
               </div>
             </section>
@@ -590,19 +721,31 @@ export default function NewPatientPage() {
                   label="Height (cm)"
                   type="number"
                   value={form.heightCm}
-                  onChange={(e) => setForm({ ...form, heightCm: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, heightCm: e.target.value });
+                    handleFormChange('heightCm', e.target.value);
+                  }}
+                  error={errors.heightCm}
                 />
                 <Input
                   label="Weight (kg)"
                   type="number"
                   value={form.weightKg}
-                  onChange={(e) => setForm({ ...form, weightKg: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, weightKg: e.target.value });
+                    handleFormChange('weightKg', e.target.value);
+                  }}
+                  error={errors.weightKg}
                 />
                 <Input
                   label="MUAC (cm)"
                   type="number"
                   value={form.muacCm}
-                  onChange={(e) => setForm({ ...form, muacCm: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, muacCm: e.target.value });
+                    handleFormChange('muacCm', e.target.value);
+                  }}
+                  error={errors.muacCm}
                 />
               </div>
             </section>
@@ -614,10 +757,16 @@ export default function NewPatientPage() {
                 Mental Health Assessment
               </h3>
               <div className="mt-4 space-y-4">
+                {errors.mentalHealth && (
+                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {errors.mentalHealth}
+                  </div>
+                )}
                 {mentalHealthQuestions.map((q) => (
                   <div
                     key={q.key}
-                    className="rounded-xl border border-slate-100 bg-white px-3 py-3"
+                    className={`rounded-xl border bg-white px-3 py-3 ${errors[`mental_${q.key}`] ? "border-red-300" : "border-slate-100"
+                      }`}
                   >
                     <p className="text-sm font-semibold text-slate-800">{q.en}</p>
                     <p className="text-xs text-slate-500">{q.bn}</p>
@@ -636,9 +785,10 @@ export default function NewPatientPage() {
                             name={q.key}
                             value={opt}
                             checked={responses[q.key] === opt}
-                            onChange={() =>
-                              setResponses((prev) => ({ ...prev, [q.key]: opt }))
-                            }
+                            onChange={() => {
+                              setResponses((prev) => ({ ...prev, [q.key]: opt }));
+                              handleResponseChange(q.key, opt);
+                            }}
                             required
                           />
                           {opt}
@@ -648,7 +798,7 @@ export default function NewPatientPage() {
                   </div>
                 ))}
 
-                <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                {/* <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                   <p className="text-sm font-semibold text-slate-800">
                     Do you ever feel like your life has no meaning, like you are failure, or that life is not worth living, to the point that you think about hurting yourself?
                   </p>
@@ -675,7 +825,7 @@ export default function NewPatientPage() {
                       }
                     />
                   </div>
-                </div>
+                </div> */}
 
 
 
@@ -772,8 +922,8 @@ export default function NewPatientPage() {
               {step < 5 && (
                 <button
                   type="button"
-                  onClick={() => setStep((s) => Math.min(5, s + 1))}
-                  className="rounded-2xl bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/70"
+                  onClick={handleNextStep}
+                  className="rounded-2xl bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/70 disabled:opacity-50"
                 >
                   Next
                 </button>
@@ -837,24 +987,35 @@ function PlanRow({ label, score, active, note }) {
   );
 }
 
-function Input({ label, ...rest }) {
+function Input({ label, error, onChange, ...rest }) {
+  const handleChange = (e) => {
+    onChange?.(e);
+  };
+
   return (
     <div className="w-full">
       <label className="text-sm font-medium text-slate-700">{label}</label>
       <input
         {...rest}
-        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+        onChange={handleChange}
+        className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition-colors ${error
+          ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+          : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+          }`}
       />
+      {error && <p className="mt-1 text-xs font-medium text-red-600">{error}</p>}
     </div>
   );
 }
 
-function RadioPill({ name, label, value, checked, onChange }) {
+function RadioPill({ name, label, value, checked, onChange, error }) {
   return (
     <label
-      className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${checked
+      className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${checked
         ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-        : "border-slate-200 text-slate-700"
+        : error
+          ? "border-red-300 text-slate-700"
+          : "border-slate-200 text-slate-700"
         }`}
     >
       <input
