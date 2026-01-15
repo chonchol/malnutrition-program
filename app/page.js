@@ -20,7 +20,7 @@ export default function Home() {
             <div>
               <p className="text-sm text-slate-500">Camp Health Stack</p>
               <h1 className="text-xl font-semibold text-slate-900">
-                Malnutrition Programm
+                Malnutrition Programme
               </h1>
             </div>
           </div>

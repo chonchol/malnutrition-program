@@ -39,13 +39,31 @@ const camps = ["Camp 1E",
   "Camp 27 - Jadimura",
   "Other"];
 
+const nutritionalSupplements = [
+  "Cerelac (Rice and Milk)",
+  "Cerelac (5 fruits, Multigrain & Milk)",
+  "Junior Horlicks",
+  "Peanut Butter",
+  "Peanut Bar"
+];
+
 
 
 export default function NewPatientPage() {
   const router = useRouter();
+
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const [form, setForm] = useState({
-    date: "",
-    surveyType: "",
+    date: getTodayDate(),
+    surveyType: "new",
     surveyStatus: "",
     nirogId: "",
     campName: "",
@@ -60,6 +78,7 @@ export default function NewPatientPage() {
     heightCm: "",
     weightKg: "",
     muacCm: "",
+    nutritionalSupplements: [],
   });
   const [responses, setResponses] = useState({});
   const [status, setStatus] = useState("");
@@ -84,16 +103,25 @@ export default function NewPatientPage() {
     () =>
       mentalHealthQuestions.reduce((sum, q) => {
         const resp = responses[q.key];
-        const value =
-          resp === "Never"
-            ? 0
-            : resp === "Sometimes"
-              ? 1
-              : resp === "Often"
-                ? 2
-                : resp === "Always"
-                  ? 6
-                  : 0;
+        let value = 0;
+
+        // Handle questions with custom options
+        if (q.customOptions) {
+          const selectedOption = q.customOptions.find(opt => opt.label === resp);
+          value = selectedOption ? selectedOption.value : 0;
+        } else {
+          // Handle standard questions with Never/Sometimes/Often/Always
+          value =
+            resp === "Never"
+              ? 0
+              : resp === "Sometimes"
+                ? 1
+                : resp === "Often"
+                  ? 2
+                  : resp === "Always"
+                    ? 6
+                    : 0;
+        }
         return sum + value;
       }, 0),
     [responses]
@@ -232,6 +260,10 @@ export default function NewPatientPage() {
       heightCm: Number(form.heightCm),
       weightKg: Number(form.weightKg),
       muacCm: Number(form.muacCm),
+      nutritionalSupplements: form.nutritionalSupplements.map(s => ({
+        ...s,
+        quantity: s.quantity ? Number(s.quantity) : undefined,
+      })),
       mentalHealth: mentalPayload,
       mentalScore: totalScore,
       mentalRisk: riskStatus,
@@ -323,7 +355,7 @@ export default function NewPatientPage() {
                     <p className="text-xs text-slate-500">
                       তারিখ
                     </p>
-                    <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                    <div className="mt-2 flex flex-col gap-2">
                       <input
                         type="date"
                         name="date"
@@ -335,6 +367,16 @@ export default function NewPatientPage() {
                         className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors ${errors.date ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100" : "border-slate-200 hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                           } dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40`}
                       />
+                      {form.date && (
+                        <p className="text-xs font-medium text-emerald-600">
+                          Selected: {new Date(form.date + 'T00:00:00').toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      )}
                     </div>
                     {errors.date && <p className="mt-1 text-xs font-medium text-red-600">{errors.date}</p>}
                   </div>
@@ -747,6 +789,89 @@ export default function NewPatientPage() {
                   }}
                   error={errors.muacCm}
                 />
+                <div className="col-span-2 space-y-3">
+                  <label className="text-sm font-semibold text-slate-800">Nutritional Supplements</label>
+                  <p className="text-xs text-slate-500">Select one or more supplements patient is taking</p>
+                  <div className="space-y-2 rounded-xl border border-slate-100 bg-white p-3">
+                    {nutritionalSupplements.map((supplement) => {
+                      const selectedSupplement = form.nutritionalSupplements.find(
+                        (s) => s.type === supplement
+                      );
+                      return (
+                        <div key={supplement} className="border-b border-slate-100 pb-2 last:border-b-0 last:pb-0">
+                          <label className="flex items-center gap-2 cursor-pointer mb-2">
+                            <input
+                              type="checkbox"
+                              checked={!!selectedSupplement}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    nutritionalSupplements: [
+                                      ...prev.nutritionalSupplements,
+                                      { type: supplement, quantity: "", unit: "" },
+                                    ],
+                                  }));
+                                } else {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    nutritionalSupplements: prev.nutritionalSupplements.filter(
+                                      (s) => s.type !== supplement
+                                    ),
+                                  }));
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            />
+                            <span className="text-sm font-medium text-slate-700">{supplement}</span>
+                          </label>
+                          {selectedSupplement && (
+                            <div className="ml-6 flex gap-2">
+                              <input
+                                type="number"
+                                placeholder="Quantity"
+                                value={selectedSupplement.quantity}
+                                onChange={(e) => {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    nutritionalSupplements: prev.nutritionalSupplements.map(
+                                      (s) =>
+                                        s.type === supplement
+                                          ? { ...s, quantity: e.target.value }
+                                          : s
+                                    ),
+                                  }));
+                                  handleFormChange('nutritionalSupplements', e.target.value);
+                                }}
+                                className="flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                              />
+                              <select
+                                value={selectedSupplement.unit}
+                                onChange={(e) => {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    nutritionalSupplements: prev.nutritionalSupplements.map(
+                                      (s) =>
+                                        s.type === supplement
+                                          ? { ...s, unit: e.target.value }
+                                          : s
+                                    ),
+                                  }));
+                                  handleFormChange('nutritionalSupplements', e.target.value);
+                                }}
+                                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                              >
+                                <option value="">Unit</option>
+                                <option value="Spoon">Spoon</option>
+                                <option value="Piece">Piece</option>
+                              </select>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </section>
           )}
@@ -771,29 +896,32 @@ export default function NewPatientPage() {
                     <p className="text-sm font-semibold text-slate-800">{q.en}</p>
                     <p className="text-xs text-slate-500">{q.bn}</p>
                     <div className="mt-2 flex flex-wrap gap-3">
-                      {responseOptions.map((opt) => (
-                        <label
-                          key={opt}
-                          className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${responses[q.key] === opt
-                            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                            : "border-slate-200 text-slate-700"
-                            }`}
-                        >
-                          <input
-                            type="radio"
-                            className="hidden"
-                            name={q.key}
-                            value={opt}
-                            checked={responses[q.key] === opt}
-                            onChange={() => {
-                              setResponses((prev) => ({ ...prev, [q.key]: opt }));
-                              handleResponseChange(q.key, opt);
-                            }}
-                            required
-                          />
-                          {opt}
-                        </label>
-                      ))}
+                      {(q.customOptions || responseOptions).map((opt) => {
+                        const optLabel = typeof opt === 'string' ? opt : opt.label;
+                        return (
+                          <label
+                            key={optLabel}
+                            className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${responses[q.key] === optLabel
+                              ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                              : "border-slate-200 text-slate-700"
+                              }`}
+                          >
+                            <input
+                              type="radio"
+                              className="hidden"
+                              name={q.key}
+                              value={optLabel}
+                              checked={responses[q.key] === optLabel}
+                              onChange={() => {
+                                setResponses((prev) => ({ ...prev, [q.key]: optLabel }));
+                                handleResponseChange(q.key, optLabel);
+                              }}
+                              required
+                            />
+                            {optLabel}
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}

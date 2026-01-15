@@ -9,6 +9,27 @@ const MentalResponseSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const NutritionalSupplementSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: [
+        "Cerelac (Rice and Milk)",
+        "Cerelac (5 fruits, Multigrain & Milk)",
+        "Junior Horlicks",
+        "Peanut Butter",
+        "Peanut Bar",
+      ],
+    },
+    quantity: Number,
+    unit: {
+      type: String,
+      enum: ["Spoon", "Piece"],
+    },
+  },
+  { _id: false }
+);
+
 const AssessmentSchema = new mongoose.Schema(
   {
     date: { type: Date, default: Date.now },
@@ -40,6 +61,7 @@ const AssessmentSchema = new mongoose.Schema(
     heightCm: Number,
     weightKg: Number,
     muacCm: Number,
+    nutritionalSupplements: [NutritionalSupplementSchema],
     mentalScore: Number,
     mentalRisk: {
       type: String,
