@@ -15,7 +15,7 @@ import {
     Tooltip,
 } from "chart.js";
 import { format } from "date-fns";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
@@ -166,21 +166,22 @@ export default function ChartsPage() {
         };
     }, [assessments]);
 
-    // Chart 4: Camp Distribution
-    const campChartData = useMemo(() => {
-        const campCount = {};
+    // Chart 4: Daily Patient Assessments
+    const dailyPatientChartData = useMemo(() => {
+        const dailyCount = {};
         assessments.forEach((a) => {
-            campCount[a.campName] = (campCount[a.campName] || 0) + 1;
+            const date = format(new Date(a.createdAt), "dd MMM yyyy");
+            dailyCount[date] = (dailyCount[date] || 0) + 1;
         });
-        const sortedCamps = Object.entries(campCount)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10); // Top 10 camps
+        const sortedDates = Object.entries(dailyCount).sort(
+            (a, b) => new Date(a[0]) - new Date(b[0])
+        );
         return {
-            labels: sortedCamps.map((c) => c[0]),
+            labels: sortedDates.map((d) => d[0]),
             datasets: [
                 {
-                    label: "Number of Assessments",
-                    data: sortedCamps.map((c) => c[1]),
+                    label: "Assessments per Day",
+                    data: sortedDates.map((d) => d[1]),
                     backgroundColor: "rgba(16, 185, 129, 0.8)",
                     borderColor: "#10b981",
                     borderWidth: 2,
@@ -240,8 +241,8 @@ export default function ChartsPage() {
         <main className="min-h-screen">
             <AdminSidebar
                 collapsed={sidebarCollapsed}
-                onLogout={() => {
-                    logout();
+                onLogout={async () => {
+                    await logout();
                     router.push("/auth/login");
                 }}
             />
@@ -255,7 +256,7 @@ export default function ChartsPage() {
                 </div>
             ) : null}
 
-            <div className="transition-all duration-200 lg:ml-64">
+            <div className={`transition-all duration-200 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
                 <div className="mx-auto max-w-7xl space-y-6 px-4 py-10">
                     <div className="space-y-6">
                         {/* Header */}
@@ -264,12 +265,15 @@ export default function ChartsPage() {
                                 <div className="flex items-center gap-3">
                                     <button
                                         type="button"
-                                        onClick={() => router.push("/dashboard")}
-                                        className="rounded-2xl border border-slate-200 bg-white/70 p-2 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
-                                        aria-label="Go back"
+                                        onClick={() => setSidebarCollapsed((v) => !v)}
+                                        className="hidden rounded-2xl border border-slate-200 bg-white/70 p-2 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 lg:inline-flex dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+                                        aria-label="Toggle sidebar"
+                                        title="Toggle sidebar"
                                     >
-                                        <ChevronLeft size={20} />
+                                        {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                                     </button>
+
+
                                     <div>
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-600">
                                             Analytics Dashboard
@@ -284,6 +288,37 @@ export default function ChartsPage() {
                                 </div>
                             </div>
                         </header>
+
+                        {/* Summary Stats */}
+                        <div className="grid gap-4 md:grid-cols-4 mt-6">
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-sm text-slate-600 mb-1">Total Assessments</p>
+                                <p className="text-3xl font-bold text-slate-900">{assessments.length}</p>
+                            </div>
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-sm text-slate-600 mb-1">Total Patients</p>
+                                <p className="text-3xl font-bold text-slate-900">
+                                    {new Set(assessments.map((a) => a.nirogId)).size}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-sm text-slate-600 mb-1">Average Age</p>
+                                <p className="text-3xl font-bold text-slate-900">
+                                    {assessments.length > 0
+                                        ? (
+                                            assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
+                                            assessments.length
+                                        ).toFixed(1)
+                                        : "N/A"}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-sm text-slate-600 mb-1">Unique Camps</p>
+                                <p className="text-3xl font-bold text-slate-900">
+                                    {new Set(assessments.map((a) => a.campName)).size}
+                                </p>
+                            </div>
+                        </div>
 
                         {/* Chart 1: MUAC Tracking */}
                         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-6">
@@ -328,7 +363,7 @@ export default function ChartsPage() {
                                             <span className="font-semibold ml-3">Total Visits:</span> {patientMuacData.length}
                                         </p>
                                     </div>
-                                    <div style={{ height: "400px", position: "relative" }}>
+                                    <div style={{ height: "300px", position: "relative" }}>
                                         <Line data={muacChartData} options={chartOptions} />
                                     </div>
                                 </div>
@@ -377,45 +412,14 @@ export default function ChartsPage() {
                             </div>
                         </div>
 
-                        {/* Chart 4: Camp Distribution */}
+                        {/* Chart 4: Daily Patient Assessments */}
                         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mt-6">
-                            <h2 className="text-xl font-bold text-slate-900 mb-4">Top 10 Camps by Assessments</h2>
+                            <h2 className="text-xl font-bold text-slate-900 mb-4">Daily Patient Assessments</h2>
                             <div style={{ height: "350px", position: "relative" }}>
                                 <Bar
-                                    data={campChartData}
+                                    data={dailyPatientChartData}
                                     options={chartOptions}
                                 />
-                            </div>
-                        </div>
-
-                        {/* Summary Stats */}
-                        <div className="grid gap-4 md:grid-cols-4 mt-6">
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Total Assessments</p>
-                                <p className="text-3xl font-bold text-slate-900">{assessments.length}</p>
-                            </div>
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Total Patients</p>
-                                <p className="text-3xl font-bold text-slate-900">
-                                    {new Set(assessments.map((a) => a.nirogId)).size}
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Average Age</p>
-                                <p className="text-3xl font-bold text-slate-900">
-                                    {assessments.length > 0
-                                        ? (
-                                            assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
-                                            assessments.length
-                                        ).toFixed(1)
-                                        : "N/A"}
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Unique Camps</p>
-                                <p className="text-3xl font-bold text-slate-900">
-                                    {new Set(assessments.map((a) => a.campName)).size}
-                                </p>
                             </div>
                         </div>
 

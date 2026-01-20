@@ -164,7 +164,7 @@ export default function DashboardPage() {
               </div>
             </header>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
               <StatCard title="Total assessments" value={assessments.length} />
               <StatCard
                 title="Camps covered"
@@ -183,7 +183,7 @@ export default function DashboardPage() {
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <div className="glass rounded-3xl p-4">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Submissions by camp

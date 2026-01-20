@@ -31,12 +31,12 @@ export default function Home() {
             >
               Login
             </Link>
-            <Link
+            {/* <Link
               href="/auth/register"
               className="rounded-full bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-200/60"
             >
               Create account
-            </Link>
+            </Link> */}
           </div>
         </header>
 

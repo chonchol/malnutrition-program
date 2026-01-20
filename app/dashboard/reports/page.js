@@ -3,7 +3,7 @@
 import AdminSidebar from "@/components/AdminSidebar";
 import { useSession } from "@/store/useSession";
 import { endOfDay, format, parseISO, startOfDay } from "date-fns";
-import { ChevronLeft, Download, Filter, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Filter, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -133,13 +133,26 @@ export default function ReportsPage() {
         const ws = XLSX.utils.json_to_sheet(
             filteredAssessments.map((a) => ({
                 "ID": a._id || a.id,
-                "Name": a.name || "N/A",
-                "Age": a.age || "N/A",
-                "Gender": a.gender || "N/A",
-                "Camp": a.campName || "N/A",
-                "Status": a.status || "Active",
                 "Date": a.createdAt ? format(parseISO(a.createdAt), "dd/MM/yyyy") : "N/A",
-                "Phone": a.phone || "N/A",
+                "Nirog ID": a.nirogId || "N/A",
+                "Survey Type": a.surveyType || "N/A",
+                "Survey Status": a.SurveyStatus || "N/A",
+                "Camp": a.campName || "N/A",
+                "Name": a.patientName || "N/A",
+                "Age": a.age || "N/A",
+                "Address": a.address || "N/A",
+                "Gender": a.gender || "N/A",
+                "School Status": a.schoolStatus || "N/A",
+                "Camp Stay": a.campStayYears || "N/A",
+                "Live with Parents": a.livesWithParents || "N/A",
+                "Family Size": a.familySize || "N/A",
+                "Height": a.heightCm || "N/A",
+                "Weight": a.weightKg || "N/A",
+                "MUAC": a.muacCm || "N/A",
+                "Mental Health Score": a.mentalScore || "N/A",
+                "Mental Health Risk": a.mentalRisk || "N/A",
+                "Referred Organization": a.referralOrg || "N/A",
+                "Created by": a.createdBy || "N/A",
             }))
         );
         const wb = XLSX.utils.book_new();
@@ -157,8 +170,8 @@ export default function ReportsPage() {
         <main className="min-h-screen">
             <AdminSidebar
                 collapsed={sidebarCollapsed}
-                onLogout={() => {
-                    logout();
+                onLogout={async () => {
+                    await logout();
                     router.push("/auth/login");
                 }}
             />
@@ -172,11 +185,12 @@ export default function ReportsPage() {
                                 <div className="flex items-center gap-3">
                                     <button
                                         type="button"
-                                        onClick={() => router.push("/dashboard")}
-                                        className="rounded-2xl border border-slate-200 bg-white/70 p-2 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
-                                        aria-label="Go back"
+                                        onClick={() => setSidebarCollapsed((v) => !v)}
+                                        className="hidden rounded-2xl border border-slate-200 bg-white/70 p-2 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 lg:inline-flex dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+                                        aria-label="Toggle sidebar"
+                                        title="Toggle sidebar"
                                     >
-                                        <ChevronLeft size={20} />
+                                        {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                                     </button>
                                     <div>
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-600">
@@ -387,6 +401,9 @@ export default function ReportsPage() {
                                         <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
                                             <tr>
                                                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
+                                                    Date
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
                                                     Name
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
@@ -398,11 +415,13 @@ export default function ReportsPage() {
                                                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
                                                     Camp
                                                 </th>
+
                                                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
-                                                    Date
+                                                    MUAC
                                                 </th>
+
                                                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
-                                                    Status
+                                                    Mental Health Score
                                                 </th>
                                             </tr>
                                         </thead>
@@ -412,8 +431,13 @@ export default function ReportsPage() {
                                                     key={assessment._id || assessment.id}
                                                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                                 >
+                                                    <td className="px-6 py-3 text-sm text-slate-600 dark:text-slate-400">
+                                                        {assessment.createdAt
+                                                            ? format(parseISO(assessment.createdAt), "dd/MM/yyyy")
+                                                            : "N/A"}
+                                                    </td>
                                                     <td className="px-6 py-3 text-sm font-medium text-slate-900 dark:text-slate-100">
-                                                        {assessment.name || "N/A"}
+                                                        {assessment.patientName || "N/A"}
                                                     </td>
                                                     <td className="px-6 py-3 text-sm text-slate-600 dark:text-slate-400">
                                                         {assessment.age || "N/A"}
@@ -425,18 +449,16 @@ export default function ReportsPage() {
                                                         {assessment.campName || "N/A"}
                                                     </td>
                                                     <td className="px-6 py-3 text-sm text-slate-600 dark:text-slate-400">
-                                                        {assessment.createdAt
-                                                            ? format(parseISO(assessment.createdAt), "dd/MM/yyyy")
-                                                            : "N/A"}
+                                                        {assessment.muacCm || "N/A"}
                                                     </td>
                                                     <td className="px-6 py-3">
                                                         <span
-                                                            className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${(assessment.status || "Active") === "Active"
+                                                            className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${(assessment.mentalRisk || "low") === "low"
                                                                 ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-100"
                                                                 : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-100"
                                                                 }`}
                                                         >
-                                                            {assessment.status || "Active"}
+                                                            {assessment.mentalRisk || "N/A"}
                                                         </span>
                                                     </td>
                                                 </tr>

@@ -4,7 +4,7 @@ const MentalResponseSchema = new mongoose.Schema(
   {
     key: String,
     question: String,
-    response: { type: String, enum: ["Never", "Sometimes", "Often", "Always", "Yes", "No"] },
+    response: { type: String, enum: ["Never", "Sometimes", "Often", "Always", "Yes", "No", "Talk to family or friends", "Cry or get angry", "Spend time alone", "Use substances (e.g., cigarettes, alcohol, drugs)"] },
   },
   { _id: false }
 );
@@ -34,7 +34,7 @@ const AssessmentSchema = new mongoose.Schema(
   {
     date: { type: Date, default: Date.now },
     surveyType: { type: String, enum: ["new", "followup"], default: "" },
-    surveyStatus: { type: String, enum: ["malnutrition", "mentalhealth"], default: "" },
+    surveyStatus: { type: String, enum: ["malnutrition", "mentalhealth", ""], default: "" },
     nirogId: { type: String, default: "" },
     campName: { type: String, required: true },
     patientName: { type: String, required: true },
