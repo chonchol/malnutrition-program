@@ -106,7 +106,19 @@ export default function DashboardPage() {
           router.push("/auth/login");
         }}
       />
-      <div className={`transition-all duration-200 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+
+      {loading ? (
+        <div className="flex items-center justify-center min-h-screen bg-slate-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading dashboard...</p>
+          </div>
+        </div>
+      ) : null}
+
+      <div
+        className={`transition-all duration-200 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
+      >
         <div className="mx-auto max-w-7xl space-y-6 px-4 py-10">
           <div className="space-y-6">
             {/* glass flex items-center justify-between rounded-3xl px-4 py-3 */}
@@ -120,7 +132,11 @@ export default function DashboardPage() {
                     aria-label="Toggle sidebar"
                     title="Toggle sidebar"
                   >
-                    {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                    {sidebarCollapsed ? (
+                      <ChevronRight size={20} />
+                    ) : (
+                      <ChevronLeft size={20} />
+                    )}
                   </button>
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-600">
@@ -178,9 +194,9 @@ export default function DashboardPage() {
                 value={
                   assessments.length
                     ? Math.round(
-                      assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
-                      assessments.length
-                    )
+                        assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
+                          assessments.length
+                      )
                     : 0
                 }
               />
@@ -240,39 +256,47 @@ export default function DashboardPage() {
                 <table className="min-w-full text-left text-sm">
                   <thead>
                     <tr className="text-slate-500 dark:text-slate-300">
+                      <th className="px-3 py-2 font-medium">Date</th>
                       <th className="px-3 py-2 font-medium">Patient</th>
                       <th className="px-3 py-2 font-medium">Camp</th>
                       <th className="px-3 py-2 font-medium">Age</th>
                       <th className="px-3 py-2 font-medium">Gender</th>
                       <th className="px-3 py-2 font-medium">MUAC</th>
-                      <th className="px-3 py-2 font-medium">Date</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td className="px-3 py-4 text-slate-500 dark:text-slate-300" colSpan={6}>
+                        <td
+                          className="px-3 py-4 text-slate-500 dark:text-slate-300"
+                          colSpan={6}
+                        >
                           Loading...
                         </td>
                       </tr>
                     ) : (
                       assessments.slice(0, 8).map((a) => (
-                        <tr key={a._id} className="border-t border-slate-100 dark:border-slate-800">
+                        <tr
+                          key={a._id}
+                          className="border-t border-slate-100 dark:border-slate-800"
+                        >
+                          <td className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                            {format(new Date(a.createdAt), "dd MMM yyyy")}
+                          </td>
                           <td className="px-3 py-2 text-slate-900 dark:text-slate-100">
                             {a.patientName}
                           </td>
                           <td className="px-3 py-2 text-slate-700 dark:text-slate-200">
                             {a.campName}
                           </td>
-                          <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{a.age}</td>
+                          <td className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                            {a.age}
+                          </td>
                           <td className="px-3 py-2 text-slate-700 dark:text-slate-200">
                             {a.gender}
                           </td>
                           <td className="px-3 py-2 text-slate-700 dark:text-slate-200">
                             {a.muacCm || "-"}
-                          </td>
-                          <td className="px-3 py-2 text-slate-700 dark:text-slate-200">
-                            {format(new Date(a.createdAt), "dd MMM yyyy")}
                           </td>
                         </tr>
                       ))

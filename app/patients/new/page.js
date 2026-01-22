@@ -1,12 +1,21 @@
 "use client";
 
-import { clearQueue, getQueuedAssessments, queueAssessment } from "@/lib/offlineQueue";
+import Input from "@/components/Input";
+import PlanRow from "@/components/PlanRow";
+import RadioPill from "@/components/RadioPill";
+import StepHeader from "@/components/StepHeader";
+import {
+  clearQueue,
+  getQueuedAssessments,
+  queueAssessment,
+} from "@/lib/offlineQueue";
 import { mentalHealthQuestions, responseOptions } from "@/lib/questions";
 import { useSession } from "@/store/useSession";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const camps = ["Camp 1E",
+const camps = [
+  "Camp 1E",
   "Camp 1W - Kutupalong",
   "Camp 2E",
   "Camp 2W",
@@ -38,17 +47,16 @@ const camps = ["Camp 1E",
   "Camp 25 - Ali Khali",
   "Camp 26 - Nayapara",
   "Camp 27 - Jadimura",
-  "Other"];
+  "Other",
+];
 
 const nutritionalSupplements = [
   "Cerelac (Rice and Milk)",
   "Cerelac (5 fruits, Multigrain & Milk)",
   "Junior Horlicks",
   "Peanut Butter",
-  "Peanut Bar"
+  "Peanut Bar",
 ];
-
-
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -59,8 +67,8 @@ export default function NewPatientPage() {
   const getTodayDate = () => {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -142,7 +150,9 @@ export default function NewPatientPage() {
 
         // Handle questions with custom options
         if (q.customOptions) {
-          const selectedOption = q.customOptions.find(opt => opt.label === resp);
+          const selectedOption = q.customOptions.find(
+            (opt) => opt.label === resp
+          );
           value = selectedOption ? selectedOption.value : 0;
         } else {
           // Handle standard questions with Never/Sometimes/Often/Always
@@ -174,7 +184,8 @@ export default function NewPatientPage() {
     if (currentStep === 0) {
       if (!form.date) newErrors.date = "Date is required";
       if (!form.surveyType) newErrors.surveyType = "Survey type is required";
-      if (form.surveyType === "followup" && !form.surveyStatus) newErrors.surveyStatus = "Follow up type is required";
+      if (form.surveyType === "followup" && !form.surveyStatus)
+        newErrors.surveyStatus = "Follow up type is required";
       if (!form.nirogId) newErrors.nirogId = "NIROG ID is required";
     } else if (currentStep === 1) {
       if (!form.campName) newErrors.campName = "Camp name is required";
@@ -183,16 +194,19 @@ export default function NewPatientPage() {
       if (!form.gender) newErrors.gender = "Gender is required";
       if (!form.address) newErrors.address = "Address is required";
     } else if (currentStep === 2) {
-      if (!form.schoolStatus) newErrors.schoolStatus = "School status is required";
-      if (!form.campStayYears) newErrors.campStayYears = "Duration of stay is required";
-      if (!form.livesWithParents) newErrors.livesWithParents = "Family status is required";
+      if (!form.schoolStatus)
+        newErrors.schoolStatus = "School status is required";
+      if (!form.campStayYears)
+        newErrors.campStayYears = "Duration of stay is required";
+      if (!form.livesWithParents)
+        newErrors.livesWithParents = "Family status is required";
       if (!form.familySize) newErrors.familySize = "Family size is required";
     } else if (currentStep === 3) {
       if (!form.heightCm) newErrors.heightCm = "Height is required";
       if (!form.weightKg) newErrors.weightKg = "Weight is required";
       if (!form.muacCm) newErrors.muacCm = "MUAC is required";
     } else if (currentStep === 4) {
-      const unanswered = mentalHealthQuestions.filter(q => !responses[q.key]);
+      const unanswered = mentalHealthQuestions.filter((q) => !responses[q.key]);
       if (unanswered.length > 0) {
         newErrors.mentalHealth = `${unanswered.length} question(s) not answered`;
       }
@@ -227,7 +241,7 @@ export default function NewPatientPage() {
   const handleResponseChange = (key, value) => {
     // Clear mental health error if any question is answered
     if (value) {
-      clearFieldError('mentalHealth');
+      clearFieldError("mentalHealth");
     }
   };
 
@@ -274,7 +288,9 @@ export default function NewPatientPage() {
       setNirogSearchLoading(true);
       setNirogSearchError("");
       try {
-        const res = await fetch(`/api/patients/search?nirogId=${encodeURIComponent(form.nirogId)}`);
+        const res = await fetch(
+          `/api/patients/search?nirogId=${encodeURIComponent(form.nirogId)}`
+        );
         if (res.ok) {
           const data = await res.json();
           if (data.found && data.data) {
@@ -287,8 +303,10 @@ export default function NewPatientPage() {
               gender: data.data.gender || prev.gender,
               address: data.data.address || prev.address,
               schoolStatus: data.data.schoolStatus || prev.schoolStatus,
-              campStayYears: data.data.campStayYears?.toString() || prev.campStayYears,
-              livesWithParents: data.data.livesWithParents || prev.livesWithParents,
+              campStayYears:
+                data.data.campStayYears?.toString() || prev.campStayYears,
+              livesWithParents:
+                data.data.livesWithParents || prev.livesWithParents,
               familySize: data.data.familySize?.toString() || prev.familySize,
             }));
             setIsDataFromPrevious(true);
@@ -361,12 +379,14 @@ export default function NewPatientPage() {
       ...form,
       date: form.date ? new Date(form.date) : new Date(),
       age: Number(form.age),
-      campStayYears: form.campStayYears ? Number(form.campStayYears) : undefined,
+      campStayYears: form.campStayYears
+        ? Number(form.campStayYears)
+        : undefined,
       familySize: form.familySize ? Number(form.familySize) : undefined,
       heightCm: Number(form.heightCm),
       weightKg: Number(form.weightKg),
       muacCm: Number(form.muacCm),
-      nutritionalSupplements: form.nutritionalSupplements.map(s => ({
+      nutritionalSupplements: form.nutritionalSupplements.map((s) => ({
         ...s,
         quantity: s.quantity ? Number(s.quantity) : undefined,
       })),
@@ -443,10 +463,9 @@ export default function NewPatientPage() {
             </div>
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm">
               <span
-                className={`h-2.5 w-2.5 rounded-full ${isOnline
-                  ? "bg-emerald-500"
-                  : "bg-amber-400"
-                  }`}
+                className={`h-2.5 w-2.5 rounded-full ${
+                  isOnline ? "bg-emerald-500" : "bg-amber-400"
+                }`}
               />
               {isOnline ? "Online" : "Offline mode"}
               {queuedCount > 0 && (
@@ -481,42 +500,51 @@ export default function NewPatientPage() {
                       <p className="text-sm font-semibold text-slate-800">
                         Date
                       </p>
-                      <p className="text-xs text-slate-500">
-                        তারিখ
-                      </p>
+                      <p className="text-xs text-slate-500">তারিখ</p>
                       <div className="mt-2 flex flex-col gap-2">
                         <input
                           type="date"
                           name="date"
                           value={form.date}
                           onChange={(e) => {
-                            setForm((prev) => ({ ...prev, date: e.target.value }));
-                            handleFormChange('date', e.target.value);
+                            setForm((prev) => ({
+                              ...prev,
+                              date: e.target.value,
+                            }));
+                            handleFormChange("date", e.target.value);
                           }}
-                          className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors ${errors.date ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100" : "border-slate-200 hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                            } dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40`}
+                          className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors ${
+                            errors.date
+                              ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-slate-200 hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                          } dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40`}
                         />
                         {form.date && (
                           <p className="text-xs font-medium text-emerald-600">
-                            Selected: {new Date(form.date + 'T00:00:00').toLocaleDateString('en-US', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
+                            Selected:{" "}
+                            {new Date(
+                              form.date + "T00:00:00"
+                            ).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
                             })}
                           </p>
                         )}
                       </div>
-                      {errors.date && <p className="mt-1 text-xs font-medium text-red-600">{errors.date}</p>}
+                      {errors.date && (
+                        <p className="mt-1 text-xs font-medium text-red-600">
+                          {errors.date}
+                        </p>
+                      )}
                     </div>
 
                     <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                       <p className="text-sm font-semibold text-slate-800">
                         Survey Type
                       </p>
-                      <p className="text-xs text-slate-500">
-                        জরিপের ধরণ
-                      </p>
+                      <p className="text-xs text-slate-500">জরিপের ধরণ</p>
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <RadioPill
                           name="surveyType"
@@ -525,7 +553,7 @@ export default function NewPatientPage() {
                           checked={form.surveyType === "new"}
                           onChange={(value) => {
                             setForm((prev) => ({ ...prev, surveyType: value }));
-                            handleFormChange('surveyType', value);
+                            handleFormChange("surveyType", value);
                           }}
                           error={errors.surveyType}
                         />
@@ -536,63 +564,74 @@ export default function NewPatientPage() {
                           checked={form.surveyType === "followup"}
                           onChange={(value) => {
                             setForm((prev) => ({ ...prev, surveyType: value }));
-                            handleFormChange('surveyType', value);
+                            handleFormChange("surveyType", value);
                           }}
                           error={errors.surveyType}
                         />
                       </div>
-                      {errors.surveyType && <p className="mt-2 text-xs font-medium text-red-600">{errors.surveyType}</p>}
+                      {errors.surveyType && (
+                        <p className="mt-2 text-xs font-medium text-red-600">
+                          {errors.surveyType}
+                        </p>
+                      )}
                     </div>
 
-                    {form.surveyType === "followup" && (<div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
-                      <p className="text-sm font-semibold text-slate-800">
-                        Which Follow Up?
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        কোন ফলো-আপ?
-                      </p>
-                      <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-                        <RadioPill
-                          name="surveyStatus"
-                          label="Malnutrition"
-                          value="malnutrition"
-                          checked={form.surveyStatus === "malnutrition"}
-                          onChange={(value) => {
-                            setForm((prev) => ({ ...prev, surveyStatus: value }));
-                            handleFormChange('surveyStatus', value);
-                          }}
-                          error={errors.surveyStatus}
-                        />
-                        <RadioPill
-                          name="surveyStatus"
-                          label="Mental Health"
-                          value="mentalhealth"
-                          checked={form.surveyStatus === "mentalhealth"}
-                          onChange={(value) => {
-                            setForm((prev) => ({ ...prev, surveyStatus: value }));
-                            handleFormChange('surveyStatus', value);
-                          }}
-                          error={errors.surveyStatus}
-                        />
+                    {form.surveyType === "followup" && (
+                      <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
+                        <p className="text-sm font-semibold text-slate-800">
+                          Which Follow Up?
+                        </p>
+                        <p className="text-xs text-slate-500">কোন ফলো-আপ?</p>
+                        <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                          <RadioPill
+                            name="surveyStatus"
+                            label="Malnutrition"
+                            value="malnutrition"
+                            checked={form.surveyStatus === "malnutrition"}
+                            onChange={(value) => {
+                              setForm((prev) => ({
+                                ...prev,
+                                surveyStatus: value,
+                              }));
+                              handleFormChange("surveyStatus", value);
+                            }}
+                            error={errors.surveyStatus}
+                          />
+                          <RadioPill
+                            name="surveyStatus"
+                            label="Mental Health"
+                            value="mentalhealth"
+                            checked={form.surveyStatus === "mentalhealth"}
+                            onChange={(value) => {
+                              setForm((prev) => ({
+                                ...prev,
+                                surveyStatus: value,
+                              }));
+                              handleFormChange("surveyStatus", value);
+                            }}
+                            error={errors.surveyStatus}
+                          />
+                        </div>
+                        {errors.surveyStatus && (
+                          <p className="mt-2 text-xs font-medium text-red-600">
+                            {errors.surveyStatus}
+                          </p>
+                        )}
                       </div>
-                      {errors.surveyStatus && <p className="mt-2 text-xs font-medium text-red-600">{errors.surveyStatus}</p>}
-                    </div>)}
-
+                    )}
 
                     <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                       <p className="text-sm font-semibold text-slate-800">
                         NIROG ID
                       </p>
-                      <p className="text-xs text-slate-500">
-                        নীরোগ আইডি
-                      </p>
+                      <p className="text-xs text-slate-500">নীরোগ আইডি</p>
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <Input
                           type="text"
                           value={form.nirogId}
                           onChange={(e) => {
                             setForm({ ...form, nirogId: e.target.value });
-                            handleFormChange('nirogId', e.target.value);
+                            handleFormChange("nirogId", e.target.value);
                           }}
                           error={errors.nirogId}
                           required
@@ -608,8 +647,13 @@ export default function NewPatientPage() {
               <section className="grid gap-4 md:grid-cols-1">
                 {isDataFromPrevious && (
                   <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                    <p className="font-semibold">Previous Patient Record Found</p>
-                    <p className="text-xs mt-1">The fields below are pre-filled from your last record. You can edit them if needed, or skip to the next section.</p>
+                    <p className="font-semibold">
+                      Previous Patient Record Found
+                    </p>
+                    <p className="text-xs mt-1">
+                      The fields below are pre-filled from your last record. You
+                      can edit them if needed, or skip to the next section.
+                    </p>
                   </div>
                 )}
                 <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
@@ -622,22 +666,23 @@ export default function NewPatientPage() {
                       <p className="text-sm font-semibold text-slate-800">
                         Camp Name
                       </p>
-                      <p className="text-xs text-slate-500">
-                        ক্যাম্পের নাম
-                      </p>
+                      <p className="text-xs text-slate-500">ক্যাম্পের নাম</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                        <p className="text-xs text-amber-600 font-medium mt-1">
+                          From previous record
+                        </p>
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <select
-                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${errors.campName
-                            ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                            : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                            }`}
+                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${
+                            errors.campName
+                              ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                          }`}
                           value={form.campName}
                           onChange={(e) => {
                             setForm({ ...form, campName: e.target.value });
-                            handleFormChange('campName', e.target.value);
+                            handleFormChange("campName", e.target.value);
                           }}
                           required
                         >
@@ -649,25 +694,29 @@ export default function NewPatientPage() {
                           ))}
                         </select>
                       </div>
-                      {errors.campName && <p className="mt-1 text-xs font-medium text-red-600">{errors.campName}</p>}
+                      {errors.campName && (
+                        <p className="mt-1 text-xs font-medium text-red-600">
+                          {errors.campName}
+                        </p>
+                      )}
                     </div>
 
                     <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                       <p className="text-sm font-semibold text-slate-800">
                         Patient Name
                       </p>
-                      <p className="text-xs text-slate-500">
-                        রোগীর নাম
-                      </p>
+                      <p className="text-xs text-slate-500">রোগীর নাম</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                        <p className="text-xs text-amber-600 font-medium mt-1">
+                          From previous record
+                        </p>
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <Input
                           value={form.patientName}
                           onChange={(e) => {
                             setForm({ ...form, patientName: e.target.value });
-                            handleFormChange('patientName', e.target.value);
+                            handleFormChange("patientName", e.target.value);
                           }}
                           error={errors.patientName}
                           required
@@ -679,20 +728,19 @@ export default function NewPatientPage() {
                       <p className="text-sm font-semibold text-slate-800">
                         Age
                       </p>
-                      <p className="text-xs text-slate-500">
-                        বয়স
-                      </p>
+                      <p className="text-xs text-slate-500">বয়স</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                        <p className="text-xs text-amber-600 font-medium mt-1">
+                          From previous record
+                        </p>
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-
                         <Input
                           type="number"
                           value={form.age}
                           onChange={(e) => {
                             setForm({ ...form, age: e.target.value });
-                            handleFormChange('age', e.target.value);
+                            handleFormChange("age", e.target.value);
                           }}
                           error={errors.age}
                           required
@@ -704,22 +752,23 @@ export default function NewPatientPage() {
                       <p className="text-sm font-semibold text-slate-800">
                         Gender
                       </p>
-                      <p className="text-xs text-slate-500">
-                        জেন্ডার
-                      </p>
+                      <p className="text-xs text-slate-500">জেন্ডার</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                        <p className="text-xs text-amber-600 font-medium mt-1">
+                          From previous record
+                        </p>
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <select
-                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${errors.gender
-                            ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                            : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                            }`}
+                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${
+                            errors.gender
+                              ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                          }`}
                           value={form.gender}
                           onChange={(e) => {
                             setForm({ ...form, gender: e.target.value });
-                            handleFormChange('gender', e.target.value);
+                            handleFormChange("gender", e.target.value);
                           }}
                           required
                         >
@@ -729,34 +778,36 @@ export default function NewPatientPage() {
                           <option value="Other">Other</option>
                         </select>
                       </div>
-                      {errors.gender && <p className="mt-1 text-xs font-medium text-red-600">{errors.gender}</p>}
+                      {errors.gender && (
+                        <p className="mt-1 text-xs font-medium text-red-600">
+                          {errors.gender}
+                        </p>
+                      )}
                     </div>
 
                     <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
                       <p className="text-sm font-semibold text-slate-800">
                         Address
                       </p>
-                      <p className="text-xs text-slate-500">
-                        ঠিকানা
-                      </p>
+                      <p className="text-xs text-slate-500">ঠিকানা</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                        <p className="text-xs text-amber-600 font-medium mt-1">
+                          From previous record
+                        </p>
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-
                         <Input
                           type="text"
                           value={form.address}
                           onChange={(e) => {
                             setForm({ ...form, address: e.target.value });
-                            handleFormChange('address', e.target.value);
+                            handleFormChange("address", e.target.value);
                           }}
                           error={errors.address}
                           required
                         />
                       </div>
                     </div>
-
                   </div>
                 </div>
               </section>
@@ -766,8 +817,13 @@ export default function NewPatientPage() {
               <section className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
                 {isDataFromPrevious && (
                   <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-4">
-                    <p className="font-semibold">Previous Patient Record Found</p>
-                    <p className="text-xs mt-1">The fields below are pre-filled from your last record. You can edit them if needed, or skip to the next section.</p>
+                    <p className="font-semibold">
+                      Previous Patient Record Found
+                    </p>
+                    <p className="text-xs mt-1">
+                      The fields below are pre-filled from your last record. You
+                      can edit them if needed, or skip to the next section.
+                    </p>
                   </div>
                 )}
                 <h3 className="text-sm font-semibold text-slate-900">
@@ -782,7 +838,9 @@ export default function NewPatientPage() {
                       বর্তমান স্কুলের অবস্থা
                     </p>
                     {isDataFromPrevious && (
-                      <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                      <p className="text-xs text-amber-600 font-medium mt-1">
+                        From previous record
+                      </p>
                     )}
                     <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                       <RadioPill
@@ -792,7 +850,7 @@ export default function NewPatientPage() {
                         checked={form.schoolStatus === "attending"}
                         onChange={(value) => {
                           setForm((prev) => ({ ...prev, schoolStatus: value }));
-                          handleFormChange('schoolStatus', value);
+                          handleFormChange("schoolStatus", value);
                         }}
                         error={errors.schoolStatus}
                       />
@@ -803,12 +861,16 @@ export default function NewPatientPage() {
                         checked={form.schoolStatus === "not_attending"}
                         onChange={(value) => {
                           setForm((prev) => ({ ...prev, schoolStatus: value }));
-                          handleFormChange('schoolStatus', value);
+                          handleFormChange("schoolStatus", value);
                         }}
                         error={errors.schoolStatus}
                       />
                     </div>
-                    {errors.schoolStatus && <p className="mt-2 text-xs font-medium text-red-600">{errors.schoolStatus}</p>}
+                    {errors.schoolStatus && (
+                      <p className="mt-2 text-xs font-medium text-red-600">
+                        {errors.schoolStatus}
+                      </p>
+                    )}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -819,7 +881,9 @@ export default function NewPatientPage() {
                       ক্যাম্পে থাকার সময়কাল
                     </p>
                     {isDataFromPrevious && (
-                      <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                      <p className="text-xs text-amber-600 font-medium mt-1">
+                        From previous record
+                      </p>
                     )}
                     <div className="mt-2 flex flex-wrap gap-2">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((year) => (
@@ -834,13 +898,17 @@ export default function NewPatientPage() {
                               ...prev,
                               campStayYears: value,
                             }));
-                            handleFormChange('campStayYears', value);
+                            handleFormChange("campStayYears", value);
                           }}
                           error={errors.campStayYears}
                         />
                       ))}
                     </div>
-                    {errors.campStayYears && <p className="mt-2 text-xs font-medium text-red-600">{errors.campStayYears}</p>}
+                    {errors.campStayYears && (
+                      <p className="mt-2 text-xs font-medium text-red-600">
+                        {errors.campStayYears}
+                      </p>
+                    )}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -848,7 +916,9 @@ export default function NewPatientPage() {
                       Do you live with your parents?
                     </p>
                     {isDataFromPrevious && (
-                      <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                      <p className="text-xs text-amber-600 font-medium mt-1">
+                        From previous record
+                      </p>
                     )}
                     <p className="text-xs text-slate-500">
                       তুমি কি তোমার বাবা-মায়ের সাথে থাকো?
@@ -860,8 +930,11 @@ export default function NewPatientPage() {
                         value="yes"
                         checked={form.livesWithParents === "yes"}
                         onChange={(value) => {
-                          setForm((prev) => ({ ...prev, livesWithParents: value }));
-                          handleFormChange('livesWithParents', value);
+                          setForm((prev) => ({
+                            ...prev,
+                            livesWithParents: value,
+                          }));
+                          handleFormChange("livesWithParents", value);
                         }}
                         error={errors.livesWithParents}
                       />
@@ -871,13 +944,20 @@ export default function NewPatientPage() {
                         value="no"
                         checked={form.livesWithParents === "no"}
                         onChange={(value) => {
-                          setForm((prev) => ({ ...prev, livesWithParents: value }));
-                          handleFormChange('livesWithParents', value);
+                          setForm((prev) => ({
+                            ...prev,
+                            livesWithParents: value,
+                          }));
+                          handleFormChange("livesWithParents", value);
                         }}
                         error={errors.livesWithParents}
                       />
                     </div>
-                    {errors.livesWithParents && <p className="mt-2 text-xs font-medium text-red-600">{errors.livesWithParents}</p>}
+                    {errors.livesWithParents && (
+                      <p className="mt-2 text-xs font-medium text-red-600">
+                        {errors.livesWithParents}
+                      </p>
+                    )}
                   </div>
 
                   <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
@@ -888,7 +968,9 @@ export default function NewPatientPage() {
                       তোমার পরিবারের কতজন সদস্য আছে?
                     </p>
                     {isDataFromPrevious && (
-                      <p className="text-xs text-amber-600 font-medium mt-1">From previous record</p>
+                      <p className="text-xs text-amber-600 font-medium mt-1">
+                        From previous record
+                      </p>
                     )}
                     <div className="mt-2 flex flex-wrap gap-2">
                       {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
@@ -900,7 +982,7 @@ export default function NewPatientPage() {
                           checked={Number(form.familySize) === num}
                           onChange={(value) => {
                             setForm((prev) => ({ ...prev, familySize: value }));
-                            handleFormChange('familySize', value);
+                            handleFormChange("familySize", value);
                           }}
                           error={errors.familySize}
                         />
@@ -912,12 +994,16 @@ export default function NewPatientPage() {
                         checked={Number(form.familySize) === 10}
                         onChange={(value) => {
                           setForm((prev) => ({ ...prev, familySize: value }));
-                          handleFormChange('familySize', value);
+                          handleFormChange("familySize", value);
                         }}
                         error={errors.familySize}
                       />
                     </div>
-                    {errors.familySize && <p className="mt-2 text-xs font-medium text-red-600">{errors.familySize}</p>}
+                    {errors.familySize && (
+                      <p className="mt-2 text-xs font-medium text-red-600">
+                        {errors.familySize}
+                      </p>
+                    )}
                   </div>
                 </div>
               </section>
@@ -935,7 +1021,7 @@ export default function NewPatientPage() {
                     value={form.heightCm}
                     onChange={(e) => {
                       setForm({ ...form, heightCm: e.target.value });
-                      handleFormChange('heightCm', e.target.value);
+                      handleFormChange("heightCm", e.target.value);
                     }}
                     error={errors.heightCm}
                   />
@@ -945,7 +1031,7 @@ export default function NewPatientPage() {
                     value={form.weightKg}
                     onChange={(e) => {
                       setForm({ ...form, weightKg: e.target.value });
-                      handleFormChange('weightKg', e.target.value);
+                      handleFormChange("weightKg", e.target.value);
                     }}
                     error={errors.weightKg}
                   />
@@ -955,20 +1041,28 @@ export default function NewPatientPage() {
                     value={form.muacCm}
                     onChange={(e) => {
                       setForm({ ...form, muacCm: e.target.value });
-                      handleFormChange('muacCm', e.target.value);
+                      handleFormChange("muacCm", e.target.value);
                     }}
                     error={errors.muacCm}
                   />
                   <div className="col-span-2 space-y-3">
-                    <label className="text-sm font-semibold text-slate-800">Nutritional Supplements</label>
-                    <p className="text-xs text-slate-500">Select one or more supplements patient is taking</p>
+                    <label className="text-sm font-semibold text-slate-800">
+                      Nutritional Supplements
+                    </label>
+                    <p className="text-xs text-slate-500">
+                      Select one or more supplements patient is taking
+                    </p>
                     <div className="space-y-2 rounded-xl border border-slate-100 bg-white p-3">
                       {nutritionalSupplements.map((supplement) => {
-                        const selectedSupplement = form.nutritionalSupplements.find(
-                          (s) => s.type === supplement
-                        );
+                        const selectedSupplement =
+                          form.nutritionalSupplements.find(
+                            (s) => s.type === supplement
+                          );
                         return (
-                          <div key={supplement} className="border-b border-slate-100 pb-2 last:border-b-0 last:pb-0">
+                          <div
+                            key={supplement}
+                            className="border-b border-slate-100 pb-2 last:border-b-0 last:pb-0"
+                          >
                             <label className="flex items-center gap-2 cursor-pointer mb-2">
                               <input
                                 type="checkbox"
@@ -979,21 +1073,28 @@ export default function NewPatientPage() {
                                       ...prev,
                                       nutritionalSupplements: [
                                         ...prev.nutritionalSupplements,
-                                        { type: supplement, quantity: "", unit: "" },
+                                        {
+                                          type: supplement,
+                                          quantity: "",
+                                          unit: "",
+                                        },
                                       ],
                                     }));
                                   } else {
                                     setForm((prev) => ({
                                       ...prev,
-                                      nutritionalSupplements: prev.nutritionalSupplements.filter(
-                                        (s) => s.type !== supplement
-                                      ),
+                                      nutritionalSupplements:
+                                        prev.nutritionalSupplements.filter(
+                                          (s) => s.type !== supplement
+                                        ),
                                     }));
                                   }
                                 }}
                                 className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                               />
-                              <span className="text-sm font-medium text-slate-700">{supplement}</span>
+                              <span className="text-sm font-medium text-slate-700">
+                                {supplement}
+                              </span>
                             </label>
                             {selectedSupplement && (
                               <div className="ml-6 flex gap-2">
@@ -1004,14 +1105,17 @@ export default function NewPatientPage() {
                                   onChange={(e) => {
                                     setForm((prev) => ({
                                       ...prev,
-                                      nutritionalSupplements: prev.nutritionalSupplements.map(
-                                        (s) =>
+                                      nutritionalSupplements:
+                                        prev.nutritionalSupplements.map((s) =>
                                           s.type === supplement
                                             ? { ...s, quantity: e.target.value }
                                             : s
-                                      ),
+                                        ),
                                     }));
-                                    handleFormChange('nutritionalSupplements', e.target.value);
+                                    handleFormChange(
+                                      "nutritionalSupplements",
+                                      e.target.value
+                                    );
                                   }}
                                   className="flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                                 />
@@ -1020,14 +1124,17 @@ export default function NewPatientPage() {
                                   onChange={(e) => {
                                     setForm((prev) => ({
                                       ...prev,
-                                      nutritionalSupplements: prev.nutritionalSupplements.map(
-                                        (s) =>
+                                      nutritionalSupplements:
+                                        prev.nutritionalSupplements.map((s) =>
                                           s.type === supplement
                                             ? { ...s, unit: e.target.value }
                                             : s
-                                      ),
+                                        ),
                                     }));
-                                    handleFormChange('nutritionalSupplements', e.target.value);
+                                    handleFormChange(
+                                      "nutritionalSupplements",
+                                      e.target.value
+                                    );
                                   }}
                                   className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                                 >
@@ -1060,21 +1167,28 @@ export default function NewPatientPage() {
                   {mentalHealthQuestions.map((q) => (
                     <div
                       key={q.key}
-                      className={`rounded-xl border bg-white px-3 py-3 ${errors[`mental_${q.key}`] ? "border-red-300" : "border-slate-100"
-                        }`}
+                      className={`rounded-xl border bg-white px-3 py-3 ${
+                        errors[`mental_${q.key}`]
+                          ? "border-red-300"
+                          : "border-slate-100"
+                      }`}
                     >
-                      <p className="text-sm font-semibold text-slate-800">{q.en}</p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {q.en}
+                      </p>
                       <p className="text-xs text-slate-500">{q.bn}</p>
                       <div className="mt-2 flex flex-wrap gap-3">
                         {(q.customOptions || responseOptions).map((opt) => {
-                          const optLabel = typeof opt === 'string' ? opt : opt.label;
+                          const optLabel =
+                            typeof opt === "string" ? opt : opt.label;
                           return (
                             <label
                               key={optLabel}
-                              className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${responses[q.key] === optLabel
-                                ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                                : "border-slate-200 text-slate-700"
-                                }`}
+                              className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                                responses[q.key] === optLabel
+                                  ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                                  : "border-slate-200 text-slate-700"
+                              }`}
                             >
                               <input
                                 type="radio"
@@ -1083,7 +1197,10 @@ export default function NewPatientPage() {
                                 value={optLabel}
                                 checked={responses[q.key] === optLabel}
                                 onChange={() => {
-                                  setResponses((prev) => ({ ...prev, [q.key]: optLabel }));
+                                  setResponses((prev) => ({
+                                    ...prev,
+                                    [q.key]: optLabel,
+                                  }));
                                   handleResponseChange(q.key, optLabel);
                                 }}
                                 required
@@ -1095,38 +1212,6 @@ export default function NewPatientPage() {
                       </div>
                     </div>
                   ))}
-
-                  {/* <div className="rounded-xl border border-slate-100 bg-white px-3 py-3">
-                  <p className="text-sm font-semibold text-slate-800">
-                    Do you ever feel like your life has no meaning, like you are failure, or that life is not worth living, to the point that you think about hurting yourself?
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    তোমার কি কখনো মনে হয় যে তোমার জীবনের কোনো মানে নেই, তুমি ব্যর্থ, বেচে থাকাটা এতটাই কঠিন মনে হয় যে নিজের ক্ষতি করার কথাও ভাবো?
-                  </p>
-                  <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-                    <RadioPill
-                      name="livesWithParents"
-                      label="Yes"
-                      value="yes"
-                      checked={form.livesWithParents === "yes"}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, livesWithParents: value }))
-                      }
-                    />
-                    <RadioPill
-                      name="livesWithParents"
-                      label="No"
-                      value="no"
-                      checked={form.livesWithParents === "no"}
-                      onChange={(value) =>
-                        setForm((prev) => ({ ...prev, livesWithParents: value }))
-                      }
-                    />
-                  </div>
-                </div> */}
-
-
-
                 </div>
               </section>
             )}
@@ -1165,12 +1250,13 @@ export default function NewPatientPage() {
                     পরামর্শ
                   </p>
                   <p className="text-xs leading-relaxed text-slate-600">
-                    পরিবারের সদস্যদের সঙ্গে ভালো সময় কাটাবে এবং একে অপরকে সাহায্য করবে।
-                    নিয়মিত খেলাধুলা করবে বা তোমার পছন্দের কাজগুলো করবে যা তোমাকে আনন্দ দেয়।
-                    নিয়মিত পড়াশোনা করবে বা নতুন কিছু শেখার চেষ্টা করবে। সব সময় ভালো
-                    দিন নিয়ে ভাববে এবং মন ভালো রাখার চেষ্টা করবে। প্রতিদিন কিছু সময়
-                    স্ব-যত্নমূলক ব্যায়াম করবে, যা মনকে শান্ত রাখতে সাহায্য করে। কোনো
-                    সমস্যা হলে ঘনিষ্ঠ এবং বিশ্বাসযোগ্য কারো সঙ্গে কথা বলবে অথবা আমাদের
+                    পরিবারের সদস্যদের সঙ্গে ভালো সময় কাটাবে এবং একে অপরকে
+                    সাহায্য করবে। নিয়মিত খেলাধুলা করবে বা তোমার পছন্দের কাজগুলো
+                    করবে যা তোমাকে আনন্দ দেয়। নিয়মিত পড়াশোনা করবে বা নতুন
+                    কিছু শেখার চেষ্টা করবে। সব সময় ভালো দিন নিয়ে ভাববে এবং মন
+                    ভালো রাখার চেষ্টা করবে। প্রতিদিন কিছু সময় স্ব-যত্নমূলক
+                    ব্যায়াম করবে, যা মনকে শান্ত রাখতে সাহায্য করে। কোনো সমস্যা
+                    হলে ঘনিষ্ঠ এবং বিশ্বাসযোগ্য কারো সঙ্গে কথা বলবে অথবা আমাদের
                     সাথে যোগাযোগ করবে।
                   </p>
                 </div>
@@ -1242,91 +1328,3 @@ export default function NewPatientPage() {
     </main>
   );
 }
-
-function StepHeader({ step }) {
-  const steps = [
-    "Administrative info",
-    "General information",
-    "School & family",
-    "Malnutrition",
-    "Mental health",
-    "Management plan",
-  ];
-  return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
-      {steps.map((label, index) => (
-        <div
-          key={label}
-          className={`flex items-center gap-1 rounded-full px-3 py-1 ${step === index
-            ? "bg-emerald-100 text-emerald-800"
-            : "bg-white text-slate-600"
-            }`}
-        >
-          <span className="text-[11px] font-semibold">{index + 1}</span>
-          <span className="hidden sm:inline">{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PlanRow({ label, score, active, note }) {
-  return (
-    <div
-      className={`rounded-xl border px-3 py-2 text-sm ${active
-        ? "border-emerald-400 bg-emerald-50"
-        : "border-slate-200 bg-white"
-        }`}
-    >
-      <p className="font-semibold text-slate-800">
-        Total Score: {Number.isNaN(score) ? "0" : score} - Status: {label}
-      </p>
-      {note && <p className="mt-1 text-xs text-slate-600">{note}</p>}
-    </div>
-  );
-}
-
-function Input({ label, error, onChange, ...rest }) {
-  const handleChange = (e) => {
-    onChange?.(e);
-  };
-
-  return (
-    <div className="w-full">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
-      <input
-        {...rest}
-        onChange={handleChange}
-        className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition-colors ${error
-          ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-          : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-          }`}
-      />
-      {error && <p className="mt-1 text-xs font-medium text-red-600">{error}</p>}
-    </div>
-  );
-}
-
-function RadioPill({ name, label, value, checked, onChange, error }) {
-  return (
-    <label
-      className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition-colors ${checked
-        ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-        : error
-          ? "border-red-300 text-slate-700"
-          : "border-slate-200 text-slate-700"
-        }`}
-    >
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={() => onChange(value)}
-        className="hidden"
-      />
-      {label}
-    </label>
-  );
-}
-
