@@ -22,12 +22,12 @@ export default function AdminSidebar({ collapsed, onLogout }) {
 
   return (
     <aside
-      className={`glass fixed left-0 top-0 h-screen flex flex-col transition-all duration-200 overflow-y-auto ${collapsed ? "w-20" : "w-64"
+      className={`glass fixed left-0 top-0 h-screen flex flex-col transition-all duration-200 overflow-y-auto z-10 ${collapsed ? "w-20" : "w-64"
         }`}
     >
       <div className="border-b border-slate-200 p-4 dark:border-slate-700">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-400 text-sm font-bold text-white">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 to-emerald-400 text-sm font-bold text-white">
             <span>H</span>
           </div>
           {!collapsed && (
@@ -57,7 +57,7 @@ export default function AdminSidebar({ collapsed, onLogout }) {
                 }`}
               title={collapsed ? link.label : undefined}
             >
-              <Icon size={20} className="flex-shrink-0" />
+              <Icon size={20} className="shrink-0" />
               {!collapsed && <span className="truncate">{link.label}</span>}
             </Link>
           );
@@ -72,7 +72,7 @@ export default function AdminSidebar({ collapsed, onLogout }) {
               }`}
             title={collapsed ? "Logout" : undefined}
           >
-            <LogOut size={20} className="flex-shrink-0" />
+            <LogOut size={20} className="shrink-0" />
             {!collapsed && <span className="truncate">Logout</span>}
           </button>
         )}

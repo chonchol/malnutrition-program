@@ -14,7 +14,7 @@ export default function Home() {
       <div className="mx-auto max-w-6xl">
         <header className="flex items-center justify-between rounded-3xl glass px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-emerald-400 text-white text-xl font-semibold">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-500 to-emerald-400 text-white text-xl font-semibold">
               H
             </div>
             <div>
@@ -82,8 +82,8 @@ export default function Home() {
             </div>
           </div>
           <div className="glass relative overflow-hidden rounded-3xl p-6">
-            <div className="absolute right-[-60px] top-[-80px] h-48 w-48 rounded-full bg-emerald-200/60 blur-3xl" />
-            <div className="absolute bottom-[-60px] left-[-40px] h-48 w-48 rounded-full bg-sky-200/70 blur-3xl" />
+            <div className="absolute -right-15 -top-20 h-48 w-48 rounded-full bg-emerald-200/60 blur-3xl" />
+            <div className="absolute -bottom-15 -left-10 h-48 w-48 rounded-full bg-sky-200/70 blur-3xl" />
             <div className="relative">
               <h3 className="text-lg font-semibold text-slate-900">
                 Fast camp workflow

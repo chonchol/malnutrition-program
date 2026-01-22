@@ -109,56 +109,59 @@ export default function DashboardPage() {
       <div className={`transition-all duration-200 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
         <div className="mx-auto max-w-7xl space-y-6 px-4 py-10">
           <div className="space-y-6">
-            <header className="glass flex items-center justify-between rounded-3xl px-4 py-3">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSidebarCollapsed((v) => !v)}
-                  className="hidden rounded-2xl border border-slate-200 bg-white/70 p-2 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 lg:inline-flex dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
-                  aria-label="Toggle sidebar"
-                  title="Toggle sidebar"
-                >
-                  {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-                </button>
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-600">
-                    Admin dashboard
-                  </p>
-                  <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-                    Camp insights
-                  </h1>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
-                    Monitor submissions, demographics, and export to Excel.
-                  </p>
+            {/* glass flex items-center justify-between rounded-3xl px-4 py-3 */}
+            <header className="glass rounded-3xl px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSidebarCollapsed((v) => !v)}
+                    className="rounded-2xl border border-slate-200 bg-white/70 p-2 text-slate-700 hover:border-emerald-400 hover:text-emerald-600 lg:inline-flex dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+                    aria-label="Toggle sidebar"
+                    title="Toggle sidebar"
+                  >
+                    {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                  </button>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-600">
+                      Admin dashboard
+                    </p>
+                    <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                      Camp insights
+                    </h1>
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                      Monitor submissions, demographics, and export to Excel.
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={downloadExcel}
-                  className="hidden items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-slate-300/70 md:inline-flex dark:bg-emerald-600 dark:shadow-emerald-900/50"
-                >
-                  <Download size={16} />
-                  Export Excel
-                </button>
-                <Link
-                  href="/patients/new"
-                  className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-800 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-100 dark:hover:border-emerald-400 dark:hover:text-emerald-400"
-                >
-                  <Plus size={16} />
-                  <span className="hidden sm:inline">New assessment</span>
-                  <span className="sm:hidden">New</span>
-                </Link>
-                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
-                <div className="flex items-center gap-2 rounded-2xl bg-white/70 px-3 py-1.5 text-xs dark:bg-slate-900/60">
-                  <span className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-500 to-emerald-400" />
-                  <div className="hidden text-right sm:block">
-                    <p className="text-[11px] font-semibold text-slate-900 dark:text-slate-100">
-                      {user?.name || "Admin"}
-                    </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-300">
-                      {user?.email}
-                    </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={downloadExcel}
+                    className="hidden items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-slate-300/70 md:inline-flex dark:bg-emerald-600 dark:shadow-emerald-900/50"
+                  >
+                    <Download size={16} />
+                    Export Excel
+                  </button>
+                  <Link
+                    href="/patients/new"
+                    className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-800 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-100 dark:hover:border-emerald-400 dark:hover:text-emerald-400"
+                  >
+                    <Plus size={16} />
+                    <span className="hidden sm:inline">New assessment</span>
+                    <span className="sm:hidden">New</span>
+                  </Link>
+                  <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
+                  <div className="flex items-center gap-2 rounded-2xl bg-white/70 px-3 py-1.5 text-xs dark:bg-slate-900/60">
+                    <span className="h-6 w-6 rounded-full bg-linear-to-br from-sky-500 to-emerald-400" />
+                    <div className="hidden text-right sm:block">
+                      <p className="text-[11px] font-semibold text-slate-900 dark:text-slate-100">
+                        {user?.name || "Admin"}
+                      </p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300">
+                        {user?.email}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

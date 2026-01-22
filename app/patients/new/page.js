@@ -1229,7 +1229,7 @@ export default function NewPatientPage() {
                 {step === 5 && (
                   <button
                     type="submit"
-                    className="rounded-2xl bg-gradient-to-r from-sky-500 to-emerald-400 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200/60"
+                    className="rounded-2xl bg-linear-to-r from-sky-500 to-emerald-400 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200/60"
                   >
                     Save assessment
                   </button>
