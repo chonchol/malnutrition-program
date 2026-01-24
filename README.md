@@ -18,6 +18,18 @@ A comprehensive web application for managing malnutrition and Mental Health prog
 - Patient history tracking
 - Data export capabilities (CSV)
 
+### 🤖 AI Assistant
+
+- **Location**: `/dashboard/chat`
+- **Features**: Intelligent chatbot for patient data queries and general health advice
+- **Database Queries**: Supports specific questions like:
+  - "How many patients are in the database?"
+  - "Show me patients aged 5-10 years"
+  - "What are the mental health statistics?"
+  - "Get assessments from [camp name]"
+  - "Show recent assessments"
+- **General Chat**: Answers general questions about malnutrition, nutrition, and healthcare
+
 ### 📊 Assessment & Monitoring
 
 - Comprehensive malnutrition assessment tools
@@ -36,6 +48,13 @@ A comprehensive web application for managing malnutrition and Mental Health prog
 - Offline data queue for synchronization
 - Automatic data syncing when online
 - Reliable data persistence
+
+### 🤖 AI Assistant
+
+- Intelligent chatbot for querying patient data
+- Natural language questions about assessments and statistics
+- Real-time database queries using Google Gemini AI
+- Get insights on malnutrition trends, mental health stats, and patient demographics
 
 ### 🎨 User Experience
 
@@ -58,6 +77,7 @@ A comprehensive web application for managing malnutrition and Mental Health prog
 - **Styling:** CSS Modules, PostCSS
 - **Database:** MongoDB (via Mongoose)
 - **Authentication:** JWT-based auth
+- **AI:** Google Generative AI (Gemini)
 - **Linting:** ESLint
 - **Build Tool:** Next.js built-in
 
@@ -96,7 +116,10 @@ MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 NEXTAUTH_SECRET=your_nextauth_secret
 NEXTAUTH_URL=http://localhost:3000
+GOOGLE_API_KEY=your_google_ai_api_key
 ```
+
+**Note:** To get a Google AI API key, visit [Google AI Studio](https://makersuite.google.com/app/apikey) and create a free API key.
 
 4. Run the development server:
 
@@ -146,6 +169,10 @@ pnpm dev
 - `POST /api/patients/bulk` - Bulk operations
 - `GET /api/patients/export` - Export patient data
 - `GET /api/patients/[id]/history` - Get patient history
+
+### AI Chat
+
+- `POST /api/chat` - Send message to AI assistant for patient data queries
 
 ## Contributing
 

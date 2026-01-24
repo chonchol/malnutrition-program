@@ -4,8 +4,9 @@ import {
   BarChart3,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   Plus,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,6 +16,7 @@ const links = [
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
   { href: "/dashboard/charts", label: "Analytics", icon: TrendingUp },
   { href: "/patients/new", label: "New assessment", icon: Plus },
+  { href: "/dashboard/chat", label: "AI Assistant", icon: MessageCircle },
 ];
 
 export default function AdminSidebar({ collapsed, onLogout }) {
@@ -22,8 +24,9 @@ export default function AdminSidebar({ collapsed, onLogout }) {
 
   return (
     <aside
-      className={`glass fixed left-0 top-0 h-screen flex flex-col transition-all duration-200 overflow-y-auto z-10 ${collapsed ? "w-20" : "w-64"
-        }`}
+      className={`glass fixed left-0 top-0 h-screen flex flex-col transition-all duration-200 overflow-y-auto z-10 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
     >
       <div className="border-b border-slate-200 p-4 dark:border-slate-700">
         <div className="flex items-center gap-3">
@@ -45,16 +48,18 @@ export default function AdminSidebar({ collapsed, onLogout }) {
 
       <nav className="flex-1 space-y-2 p-4">
         {links.map((link) => {
-          const active = pathname === link.href || pathname.startsWith(link.href + "/");
+          const active =
+            pathname === link.href || pathname.startsWith(link.href + "/");
           const Icon = link.icon;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active
-                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100"
-                : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                }`}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                active
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100"
+                  : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              }`}
               title={collapsed ? link.label : undefined}
             >
               <Icon size={20} className="shrink-0" />
@@ -68,8 +73,9 @@ export default function AdminSidebar({ collapsed, onLogout }) {
         {onLogout && (
           <button
             onClick={onLogout}
-            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-red-50 dark:text-slate-200 dark:hover:bg-red-900/20 ${collapsed ? "justify-center" : ""
-              }`}
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-red-50 dark:text-slate-200 dark:hover:bg-red-900/20 ${
+              collapsed ? "justify-center" : ""
+            }`}
             title={collapsed ? "Logout" : undefined}
           >
             <LogOut size={20} className="shrink-0" />
