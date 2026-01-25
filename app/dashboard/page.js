@@ -1,6 +1,7 @@
 "use client";
 
 import AdminSidebar from "@/components/AdminSidebar";
+import StatCard from "@/components/StatCard";
 import { useSession } from "@/store/useSession";
 import {
   ArcElement,
@@ -194,9 +195,9 @@ export default function DashboardPage() {
                 value={
                   assessments.length
                     ? Math.round(
-                        assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
-                          assessments.length
-                      )
+                      assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
+                      assessments.length
+                    )
                     : 0
                 }
               />
@@ -207,7 +208,7 @@ export default function DashboardPage() {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Submissions by camp
                 </h3>
-                <div className="mt-4">
+                <div className="mt-4 h-75">
                   <Bar
                     data={{
                       labels: Object.keys(campCounts),
@@ -227,7 +228,7 @@ export default function DashboardPage() {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Gender split
                 </h3>
-                <div className="mt-4">
+                <div className="mt-4 h-75 flex items-center justify-center">
                   <Doughnut
                     data={{
                       labels: Object.keys(genderCounts),
@@ -312,15 +313,3 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ title, value }) {
-  return (
-    <div className="glass rounded-3xl p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-        {title}
-      </p>
-      <p className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
-        {value}
-      </p>
-    </div>
-  );
-}

@@ -61,6 +61,11 @@ const AssessmentSchema = new mongoose.Schema(
     heightCm: Number,
     weightKg: Number,
     muacCm: Number,
+    bmi: Number,
+    bmiCategory: {
+      type: String,
+      enum: ["severe_underweight", "moderate_underweight", "normal", "overweight", "obese"],
+    },
     nutritionalSupplements: [NutritionalSupplementSchema],
     mentalScore: Number,
     mentalRisk: {

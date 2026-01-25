@@ -90,6 +90,7 @@ export default function NewPatientPage() {
       heightCm: "",
       weightKg: "",
       muacCm: "",
+      bmi: "",
       nutritionalSupplements: [],
     });
     setResponses({});
@@ -118,6 +119,7 @@ export default function NewPatientPage() {
     heightCm: "",
     weightKg: "",
     muacCm: "",
+    bmi: "",
     nutritionalSupplements: [],
   });
   const [responses, setResponses] = useState({});
@@ -204,7 +206,7 @@ export default function NewPatientPage() {
     } else if (currentStep === 3) {
       if (!form.heightCm) newErrors.heightCm = "Height is required";
       if (!form.weightKg) newErrors.weightKg = "Weight is required";
-      if (!form.muacCm) newErrors.muacCm = "MUAC is required";
+      // if (!form.muacCm) newErrors.muacCm = "MUAC is required";
     } else if (currentStep === 4) {
       const unanswered = mentalHealthQuestions.filter((q) => !responses[q.key]);
       if (unanswered.length > 0) {
@@ -386,6 +388,7 @@ export default function NewPatientPage() {
       heightCm: Number(form.heightCm),
       weightKg: Number(form.weightKg),
       muacCm: Number(form.muacCm),
+      bmi: Number(form.bmi),
       nutritionalSupplements: form.nutritionalSupplements.map((s) => ({
         ...s,
         quantity: s.quantity ? Number(s.quantity) : undefined,
@@ -463,9 +466,8 @@ export default function NewPatientPage() {
             </div>
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm">
               <span
-                className={`h-2.5 w-2.5 rounded-full ${
-                  isOnline ? "bg-emerald-500" : "bg-amber-400"
-                }`}
+                className={`h-2.5 w-2.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-amber-400"
+                  }`}
               />
               {isOnline ? "Online" : "Offline mode"}
               {queuedCount > 0 && (
@@ -513,11 +515,10 @@ export default function NewPatientPage() {
                             }));
                             handleFormChange("date", e.target.value);
                           }}
-                          className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors ${
-                            errors.date
-                              ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-slate-200 hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                          } dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40`}
+                          className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors ${errors.date
+                            ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                            : "border-slate-200 hover:border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                            } dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-emerald-900/40`}
                         />
                         {form.date && (
                           <p className="text-xs font-medium text-emerald-600">
@@ -674,11 +675,10 @@ export default function NewPatientPage() {
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <select
-                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${
-                            errors.campName
-                              ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                          }`}
+                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${errors.campName
+                            ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                            : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                            }`}
                           value={form.campName}
                           onChange={(e) => {
                             setForm({ ...form, campName: e.target.value });
@@ -760,11 +760,10 @@ export default function NewPatientPage() {
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <select
-                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${
-                            errors.gender
-                              ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-                          }`}
+                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${errors.gender
+                            ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                            : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                            }`}
                           value={form.gender}
                           onChange={(e) => {
                             setForm({ ...form, gender: e.target.value });
@@ -1045,6 +1044,23 @@ export default function NewPatientPage() {
                     }}
                     error={errors.muacCm}
                   />
+
+                  <Input
+                    label="BMI (kg/m2)"
+                    type="number"
+                    value={(form.weightKg / ((form.heightCm / 100) ** 2)).toFixed(2) || ""}
+                    onChange={(e) => {
+                      setForm({ ...form, bmi: e.target.value });
+                      handleFormChange("bmi", e.target.value);
+                    }}
+                    error={errors.bmi}
+                  />
+
+                  <div className="w-full">
+                    <p className="text-sm font-medium text-slate-700 mt-1">MUAC Status: </p>
+                    <p className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition-colors border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">{form.muacCm ? (form.muacCm < 11.5 ? "Severe Acute Malnutrition" : form.muacCm >= 11.5 && form.muacCm < 12.5 ? "Moderate Acute Malnutrition" : "Normal") : "N/A"}</p>
+                  </div>
+
                   <div className="col-span-2 space-y-3">
                     <label className="text-sm font-semibold text-slate-800">
                       Nutritional Supplements
@@ -1167,11 +1183,10 @@ export default function NewPatientPage() {
                   {mentalHealthQuestions.map((q) => (
                     <div
                       key={q.key}
-                      className={`rounded-xl border bg-white px-3 py-3 ${
-                        errors[`mental_${q.key}`]
-                          ? "border-red-300"
-                          : "border-slate-100"
-                      }`}
+                      className={`rounded-xl border bg-white px-3 py-3 ${errors[`mental_${q.key}`]
+                        ? "border-red-300"
+                        : "border-slate-100"
+                        }`}
                     >
                       <p className="text-sm font-semibold text-slate-800">
                         {q.en}
@@ -1184,11 +1199,10 @@ export default function NewPatientPage() {
                           return (
                             <label
                               key={optLabel}
-                              className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                                responses[q.key] === optLabel
-                                  ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                                  : "border-slate-200 text-slate-700"
-                              }`}
+                              className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${responses[q.key] === optLabel
+                                ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                                : "border-slate-200 text-slate-700"
+                                }`}
                             >
                               <input
                                 type="radio"
@@ -1280,6 +1294,7 @@ export default function NewPatientPage() {
                       International Rescue Committee (IRC)
                     </option>
                     <option value="HI">Handicap International (HI)</option>
+                    <option value="MSF">Médecins Sans Frontières (MSF)</option>
                   </select>
                 </div>
               </section>
