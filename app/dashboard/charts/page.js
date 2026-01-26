@@ -348,9 +348,7 @@ export default function ChartsPage() {
                         <p className="text-slate-600">Loading charts...</p>
                     </div>
                 </div>
-            ) : null}
-
-            <div
+            ) : (<div
                 className={`transition-all duration-200 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
             >
                 <div className="mx-auto max-w-7xl space-y-6 px-4 py-10">
@@ -532,7 +530,9 @@ export default function ChartsPage() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>)}
+
+
         </main>
     );
 }

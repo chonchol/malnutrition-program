@@ -4,51 +4,14 @@ import Input from "@/components/Input";
 import PlanRow from "@/components/PlanRow";
 import RadioPill from "@/components/RadioPill";
 import StepHeader from "@/components/StepHeader";
-import {
-  clearQueue,
-  getQueuedAssessments,
-  queueAssessment,
-} from "@/lib/offlineQueue";
+import camps from "@/data/camps.json";
+import { calculateBMI, calculateBMIZScore, getBMICategory } from "@/lib/baz";
+import { clearQueue, getQueuedAssessments, queueAssessment } from "@/lib/offlineQueue";
 import { mentalHealthQuestions, responseOptions } from "@/lib/questions";
 import { useSession } from "@/store/useSession";
+import { getTodayDate } from "@/utils/getTodayDate";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
-const camps = [
-  "Camp 1E",
-  "Camp 1W - Kutupalong",
-  "Camp 2E",
-  "Camp 2W",
-  "Camp 03",
-  "Camp 04",
-  "Camp 04 Ext",
-  "Camp 05",
-  "Camp 06",
-  "Camp 07",
-  "Camp 8E",
-  "Camp 8W",
-  "Camp 09 - Balukhali",
-  "Camp 10",
-  "Camp 11",
-  "Camp 12",
-  "Camp 13",
-  "Camp 14 - Hakimpara",
-  "Camp 15 - Jamtoli",
-  "Camp 16 - Potibonia",
-  "Camp 17",
-  "Camp 18",
-  "Camp 19",
-  "Camp 20",
-  "Camp 20 Ext",
-  "Camp 21 - Chakmarkul",
-  "Camp 22 - Unchiprang",
-  "Camp 23 - Shamlapur",
-  "Camp 24 - Leda",
-  "Camp 25 - Ali Khali",
-  "Camp 26 - Nayapara",
-  "Camp 27 - Jadimura",
-  "Other",
-];
 
 const nutritionalSupplements = [
   "Cerelac (Rice and Milk)",
@@ -62,15 +25,6 @@ export default function NewPatientPage() {
   const router = useRouter();
   const { user, fetchUser, loading: authLoading } = useSession();
   const [authChecked, setAuthChecked] = useState(false);
-
-  // Get today's date in YYYY-MM-DD format
-  const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const resetForm = () => {
     setForm({
@@ -90,7 +44,7 @@ export default function NewPatientPage() {
       heightCm: "",
       weightKg: "",
       muacCm: "",
-      bmi: "",
+      // bmi: "",
       nutritionalSupplements: [],
     });
     setResponses({});
@@ -119,7 +73,7 @@ export default function NewPatientPage() {
     heightCm: "",
     weightKg: "",
     muacCm: "",
-    bmi: "",
+    // bmi: "",
     nutritionalSupplements: [],
   });
   const [responses, setResponses] = useState({});
@@ -206,7 +160,7 @@ export default function NewPatientPage() {
     } else if (currentStep === 3) {
       if (!form.heightCm) newErrors.heightCm = "Height is required";
       if (!form.weightKg) newErrors.weightKg = "Weight is required";
-      // if (!form.muacCm) newErrors.muacCm = "MUAC is required";
+      if (!form.muacCm && ageInMonths <= 60) newErrors.muacCm = "MUAC is required";
     } else if (currentStep === 4) {
       const unanswered = mentalHealthQuestions.filter((q) => !responses[q.key]);
       if (unanswered.length > 0) {
@@ -373,6 +327,13 @@ export default function NewPatientPage() {
     };
   }, []);
 
+
+  const ageInMonths = form.age ? Math.floor(Number(form.age) * 12) : null;
+
+  const bmi = calculateBMI(form?.weightKg, form?.heightCm);
+  const zScore = calculateBMIZScore({ bmi, ageMonths: ageInMonths, gender: form?.gender });
+  const bmiCategory = getBMICategory(zScore);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (step !== 5) return;
@@ -388,7 +349,9 @@ export default function NewPatientPage() {
       heightCm: Number(form.heightCm),
       weightKg: Number(form.weightKg),
       muacCm: Number(form.muacCm),
-      bmi: Number(form.bmi),
+      bmi: bmi,
+      bmiZScore: zScore,
+      bmiCategory: bmiCategory,
       nutritionalSupplements: form.nutritionalSupplements.map((s) => ({
         ...s,
         quantity: s.quantity ? Number(s.quantity) : undefined,
@@ -687,7 +650,7 @@ export default function NewPatientPage() {
                           required
                         >
                           <option value="">Select</option>
-                          {camps.map((camp) => (
+                          {camps?.camps.map((camp) => (
                             <option key={camp} value={camp}>
                               {camp}
                             </option>
@@ -1034,7 +997,8 @@ export default function NewPatientPage() {
                     }}
                     error={errors.weightKg}
                   />
-                  <Input
+
+                  {ageInMonths <= 60 && (<Input
                     label="MUAC (cm)"
                     type="number"
                     value={form.muacCm}
@@ -1043,9 +1007,10 @@ export default function NewPatientPage() {
                       handleFormChange("muacCm", e.target.value);
                     }}
                     error={errors.muacCm}
-                  />
+                  />)}
 
-                  <Input
+
+                  {/* <Input
                     label="BMI (kg/m2)"
                     type="number"
                     value={(form.weightKg / ((form.heightCm / 100) ** 2)).toFixed(2) || ""}
@@ -1054,12 +1019,27 @@ export default function NewPatientPage() {
                       handleFormChange("bmi", e.target.value);
                     }}
                     error={errors.bmi}
-                  />
+                  /> */}
+
+
 
                   <div className="w-full">
+                    <p className="text-sm font-medium text-slate-700 mt-1">Malnutrition Status: </p>
+                    {ageInMonths <= 60 ? (
+                      <div className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition-colors border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
+                        {form.muacCm ? (form.muacCm < 11.5 ? "Severe Acute Malnutrition" : form.muacCm >= 11.5 && form.muacCm < 12.5 ? "Moderate Acute Malnutrition" : "Normal") : "N/A"}
+                      </div>
+                    ) : (<div className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition-colors border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
+                      BMI: {bmi} - ZScore {zScore === null ? "N/A" : `: ${zScore}`} - {bmiCategory}
+                    </div>)}
+                  </div>
+
+
+
+                  {/* <div className="w-full">
                     <p className="text-sm font-medium text-slate-700 mt-1">MUAC Status: </p>
                     <p className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition-colors border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">{form.muacCm ? (form.muacCm < 11.5 ? "Severe Acute Malnutrition" : form.muacCm >= 11.5 && form.muacCm < 12.5 ? "Moderate Acute Malnutrition" : "Normal") : "N/A"}</p>
-                  </div>
+                  </div> */}
 
                   <div className="col-span-2 space-y-3">
                     <label className="text-sm font-semibold text-slate-800">
@@ -1339,7 +1319,8 @@ export default function NewPatientPage() {
             </div>
           </form>
         </div>
-      )}
-    </main>
+      )
+      }
+    </main >
   );
 }

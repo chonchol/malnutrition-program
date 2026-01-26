@@ -26,7 +26,7 @@ export async function POST(req) {
     // console.log("Received data:", data);
     await connectToDatabase();
     const doc = await Assessment.create({ ...data, createdBy: user.id });
-    // console.log("Saved document:", doc);
+    console.log("Saved document:", doc);
     return NextResponse.json({ assessment: doc });
   } catch (error) {
     // console.error("Error saving assessment:", error);
