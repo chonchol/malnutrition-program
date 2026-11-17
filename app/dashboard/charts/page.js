@@ -19,6 +19,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
+import { useTheme } from "@/components/ThemeProvider";
 
 ChartJS.register(
     CategoryScale,
@@ -74,6 +75,7 @@ ChartJS.register(barLabelsPlugin);
 export default function ChartsPage() {
     const router = useRouter();
     const { user, fetchUser, logout } = useSession();
+    const { theme } = useTheme();
     const [assessments, setAssessments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [authChecked, setAuthChecked] = useState(false);
@@ -155,43 +157,53 @@ export default function ChartsPage() {
 
     // Chart 2: School Attendance (attending vs not_attending) as percentage
     const chartOptions = useMemo(
-        () => ({
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: "top",
-                    labels: {
-                        font: { size: 12 },
-                        padding: 15,
+        () => {
+            const textColor = theme === "dark" ? "#cbd5e1" : "#334155";
+            const gridColor =
+                theme === "dark" ? "rgba(148, 163, 184, 0.2)" : "rgba(0, 0, 0, 0.05)";
+            return {
+                responsive: true,
+                maintainAspectRatio: true,
+                color: textColor,
+                plugins: {
+                    legend: {
+                        position: "top",
+                        labels: {
+                            color: textColor,
+                            font: { size: 12 },
+                            padding: 15,
+                        },
+                    },
+                    title: {
+                        display: true,
+                        color: textColor,
+                        font: { size: 14, weight: "bold" },
+                        padding: 20,
+                    },
+                    barLabels: {
+                        color: textColor,
+                        font: "600 12px Arial",
+                        suffix: "",
                     },
                 },
-                title: {
-                    display: true,
-                    font: { size: 14, weight: "bold" },
-                    padding: 20,
-                },
-                barLabels: {
-                    color: "#111827",
-                    font: "600 12px Arial",
-                    suffix: "",
-                },
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: "rgba(0, 0, 0, 0.05)",
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                        },
+                        ticks: { color: textColor },
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: { color: textColor },
                     },
                 },
-                x: {
-                    grid: {
-                        display: false,
-                    },
-                },
-            },
-        }),
-        []
+            };
+        },
+        [theme]
     );
 
     const schoolChartData = useMemo(() => {
@@ -335,6 +347,7 @@ export default function ChartsPage() {
         <main className="min-h-screen">
             <AdminSidebar
                 collapsed={sidebarCollapsed}
+                isAdmin={user?.role === "admin"}
                 onLogout={async () => {
                     await logout();
                     router.push("/auth/login");
@@ -342,7 +355,7 @@ export default function ChartsPage() {
             />
 
             {loading ? (
-                <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
                         <p className="text-slate-600">Loading charts...</p>
@@ -388,21 +401,21 @@ export default function ChartsPage() {
 
                         {/* Summary Stats */}
                         <div className="grid gap-4 md:grid-cols-4 mt-6">
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Total Assessments</p>
-                                <p className="text-3xl font-bold text-slate-900">
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                                <p className="text-sm text-slate-600 mb-1 dark:text-slate-300">Total Assessments</p>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
                                     {assessments.length}
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Total Patients</p>
-                                <p className="text-3xl font-bold text-slate-900">
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                                <p className="text-sm text-slate-600 mb-1 dark:text-slate-300">Total Patients</p>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
                                     {new Set(assessments.map((a) => a.nirogId)).size}
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Average Age</p>
-                                <p className="text-3xl font-bold text-slate-900">
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                                <p className="text-sm text-slate-600 mb-1 dark:text-slate-300">Average Age</p>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
                                     {assessments.length > 0
                                         ? (
                                             assessments.reduce((sum, a) => sum + (a.age || 0), 0) /
@@ -411,17 +424,17 @@ export default function ChartsPage() {
                                         : "N/A"}
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p className="text-sm text-slate-600 mb-1">Unique Camps</p>
-                                <p className="text-3xl font-bold text-slate-900">
+                            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                                <p className="text-sm text-slate-600 mb-1 dark:text-slate-300">Unique Camps</p>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
                                     {new Set(assessments.map((a) => a.campName)).size}
                                 </p>
                             </div>
                         </div>
 
                         {/* Chart 1: MUAC Tracking */}
-                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-6">
-                            <h2 className="text-xl font-bold text-slate-900 mb-4">
+                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-6 dark:border-slate-700 dark:bg-slate-900">
+                            <h2 className="text-xl font-bold text-slate-900 mb-4 dark:text-slate-100">
                                 Individual Patient MUAC Tracking
                             </h2>
                             <div className="flex gap-2 mb-6">
@@ -431,7 +444,7 @@ export default function ChartsPage() {
                                     value={nirogIdInput}
                                     onChange={(e) => setNirogIdInput(e.target.value)}
                                     onKeyPress={(e) => e.key === "Enter" && handleSearchNirogId()}
-                                    className="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                                    className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-900/40"
                                 />
                                 <button
                                     onClick={handleSearchNirogId}
@@ -442,21 +455,21 @@ export default function ChartsPage() {
                                 {nirogId && (
                                     <button
                                         onClick={handleClearNirogId}
-                                        className="rounded-lg bg-slate-100 p-2 hover:bg-slate-200 transition"
+                                        className="rounded-lg bg-slate-100 p-2 hover:bg-slate-200 transition dark:bg-slate-800 dark:hover:bg-slate-700"
                                     >
-                                        <X size={20} className="text-slate-600" />
+                                        <X size={20} className="text-slate-600 dark:text-slate-300" />
                                     </button>
                                 )}
                             </div>
                             {(nirogError || nirogNotFoundMessage) && (
-                                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">
+                                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200">
                                     {nirogError || nirogNotFoundMessage}
                                 </div>
                             )}
                             {muacChartData && patientMuacData && (
                                 <div>
-                                    <div className="mb-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                                        <p className="text-sm text-emerald-900">
+                                    <div className="mb-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200 dark:border-emerald-800 dark:bg-emerald-950/40">
+                                        <p className="text-sm text-emerald-900 dark:text-emerald-200">
                                             <span className="font-semibold">Patient:</span>{" "}
                                             {patientMuacData[0]?.patientName} |
                                             <span className="font-semibold ml-3">NIROG ID:</span>{" "}
@@ -475,7 +488,7 @@ export default function ChartsPage() {
                                 </div>
                             )}
                             {!nirogId && !nirogError && (
-                                <div className="flex items-center justify-center py-20 text-slate-500">
+                                <div className="flex items-center justify-center py-20 text-slate-500 dark:text-slate-400">
                                     <p>Enter a NIROG ID above to view patient MUAC tracking</p>
                                 </div>
                             )}
@@ -484,8 +497,8 @@ export default function ChartsPage() {
                         {/* Charts Grid */}
                         <div className="grid gap-6 md:grid-cols-2">
                             {/* Chart 2: School Attendance */}
-                            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                                <h2 className="text-xl font-bold text-slate-900 mb-4">
+                            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                                <h2 className="text-xl font-bold text-slate-900 mb-4 dark:text-slate-100">
                                     School Attendance
                                 </h2>
                                 <div style={{ height: "350px", position: "relative" }}>
@@ -494,8 +507,8 @@ export default function ChartsPage() {
                             </div>
 
                             {/* Chart 3: Mental Health Risk */}
-                            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                                <h2 className="text-xl font-bold text-slate-900 mb-4">
+                            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                                <h2 className="text-xl font-bold text-slate-900 mb-4 dark:text-slate-100">
                                     Mental Health Risk Distribution
                                 </h2>
                                 <div style={{ height: "350px", position: "relative" }}>
@@ -507,7 +520,9 @@ export default function ChartsPage() {
                                             plugins: {
                                                 legend: {
                                                     position: "bottom",
+                                                    color: theme === "dark" ? "#cbd5e1" : "#334155",
                                                     labels: {
+                                                        color: theme === "dark" ? "#cbd5e1" : "#334155",
                                                         font: { size: 12 },
                                                         padding: 15,
                                                     },
@@ -520,8 +535,8 @@ export default function ChartsPage() {
                         </div>
 
                         {/* Chart 4: Daily Patient Assessments */}
-                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mt-6">
-                            <h2 className="text-xl font-bold text-slate-900 mb-4">
+                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mt-6 dark:border-slate-700 dark:bg-slate-900">
+                            <h2 className="text-xl font-bold text-slate-900 mb-4 dark:text-slate-100">
                                 Daily Patient Assessments
                             </h2>
                             <div style={{ height: "300px", position: "relative" }}>

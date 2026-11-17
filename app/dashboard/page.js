@@ -3,6 +3,7 @@
 import AdminSidebar from "@/components/AdminSidebar";
 import StatCard from "@/components/StatCard";
 import { useSession } from "@/store/useSession";
+import { useTheme } from "@/components/ThemeProvider";
 import {
   ArcElement,
   BarElement,
@@ -31,6 +32,7 @@ ChartJS.register(
 export default function DashboardPage() {
   const router = useRouter();
   const { user, fetchUser, logout } = useSession();
+  const { theme } = useTheme();
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
@@ -102,6 +104,7 @@ export default function DashboardPage() {
     <main className="min-h-screen">
       <AdminSidebar
         collapsed={sidebarCollapsed}
+        isAdmin={user?.role === "admin"}
         onLogout={async () => {
           await logout();
           router.push("/auth/login");
@@ -109,10 +112,10 @@ export default function DashboardPage() {
       />
 
       {loading ? (
-        <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Loading dashboard...</p>
+            <p className="text-slate-600 dark:text-slate-300">Loading dashboard...</p>
           </div>
         </div>
       ) : (<div
@@ -218,7 +221,22 @@ export default function DashboardPage() {
                         },
                       ],
                     }}
-                    options={{ plugins: { legend: { display: false } } }}
+                    options={{
+                      color: theme === "dark" ? "#cbd5e1" : "#334155",
+                      plugins: { legend: { display: false } },
+                      scales: {
+                        x: { ticks: { color: theme === "dark" ? "#cbd5e1" : "#334155" } },
+                        y: {
+                          ticks: { color: theme === "dark" ? "#cbd5e1" : "#334155" },
+                          grid: {
+                            color:
+                              theme === "dark"
+                                ? "rgba(148, 163, 184, 0.2)"
+                                : "rgba(0, 0, 0, 0.05)",
+                          },
+                        },
+                      },
+                    }}
                   />
                 </div>
               </div>
@@ -236,6 +254,16 @@ export default function DashboardPage() {
                           backgroundColor: ["#22c55e", "#38bdf8", "#a855f7"],
                         },
                       ],
+                    }}
+                    options={{
+                      color: theme === "dark" ? "#cbd5e1" : "#334155",
+                      plugins: {
+                        legend: {
+                          labels: {
+                            color: theme === "dark" ? "#cbd5e1" : "#334155",
+                          },
+                        },
+                      },
                     }}
                   />
                 </div>

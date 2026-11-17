@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -13,6 +15,7 @@
   --panel: rgba(255, 255, 255, 0.85);
   --border: rgba(148, 163, 184, 0.2);
   --shadow: rgba(15, 23, 42, 0.08);
+  color-scheme: light;
 }
 
 :root[data-theme="dark"] {
@@ -21,6 +24,7 @@
   --panel: rgba(15, 23, 42, 0.75);
   --border: rgba(148, 163, 184, 0.25);
   --shadow: rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
 }
 
 body {
@@ -40,7 +44,35 @@ body {
   backdrop-filter: blur(12px);
 }
 
-.dark body {
+:root[data-theme="dark"] .glass [class~="bg-white"],
+:root[data-theme="dark"] .glass [class~="bg-white/70"],
+:root[data-theme="dark"] .glass [class~="bg-white/80"] {
+  background-color: rgb(15 23 42 / 0.88);
+}
+
+:root[data-theme="dark"] .glass [class~="border-slate-100"],
+:root[data-theme="dark"] .glass [class~="border-slate-200"] {
+  border-color: #334155;
+}
+
+:root[data-theme="dark"] .glass [class~="text-slate-900"] {
+  color: #f1f5f9;
+}
+
+:root[data-theme="dark"] .glass [class~="text-slate-800"] {
+  color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .glass [class~="text-slate-700"],
+:root[data-theme="dark"] .glass [class~="text-slate-600"] {
+  color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .glass [class~="text-slate-500"] {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] body {
   background: radial-gradient(circle at 20% 20%, #111827, #0b1220 40%),
     radial-gradient(circle at 80% 0%, #0f172a, transparent 35%),
     #0b1220;

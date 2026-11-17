@@ -1,4 +1,8 @@
+"use client";
+
+import { useSession } from "@/store/useSession";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const features = [
   "Offline-first data capture with auto sync",
@@ -9,6 +13,21 @@ const features = [
 ];
 
 export default function Home() {
+  const { user, fetchUser, logout } = useSession();
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const checkSession = async () => {
+      await fetchUser();
+      if (active) setAuthChecked(true);
+    };
+    checkSession();
+    return () => {
+      active = false;
+    };
+  }, [fetchUser]);
+
   return (
     <main className="min-h-screen px-6 py-14">
       <div className="mx-auto max-w-6xl">
@@ -18,25 +37,30 @@ export default function Home() {
               H
             </div>
             <div>
-              <p className="text-sm text-slate-500">Camp Health Stack</p>
-              <h1 className="text-xl font-semibold text-slate-900">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Camp Health Stack</p>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                 Malnutrition Programme
               </h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/auth/login"
-              className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:text-slate-200"
-            >
-              Login
-            </Link>
-            {/* <Link
-              href="/auth/register"
-              className="rounded-full bg-gradient-to-r from-sky-500 to-emerald-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-200/60"
-            >
-              Create account
-            </Link> */}
+            {authChecked &&
+              (user ? (
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:text-slate-200"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:text-slate-200"
+                >
+                  Login
+                </Link>
+              ))}
           </div>
         </header>
 
@@ -45,10 +69,10 @@ export default function Home() {
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
               Field ready
             </p>
-            <h2 className="text-4xl font-semibold leading-[1.2] text-slate-900">
+            <h2 className="text-4xl font-semibold leading-[1.2] text-slate-900 dark:text-slate-100">
               Offline-first malnutrition and mental health apps for camps.
             </h2>
-            <p className="mt-4 text-lg text-slate-600">
+            <p             className="mt-4 text-lg text-slate-600 dark:text-slate-300">
               Built for low-connectivity environments. Collect assessments in
               Bengali/English, sync automatically when back online, and export
               polished reports instantly.
@@ -57,25 +81,25 @@ export default function Home() {
               {features.map((item) => (
                 <div
                   key={item}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 px-4 py-3 shadow-sm"
+                  className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300">
                     ✓
                   </span>
-                  <p className="text-sm font-medium text-slate-700">{item}</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{item}</p>
                 </div>
               ))}
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/patients/new"
-                className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/70"
+                className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/70 dark:bg-emerald-600 dark:shadow-emerald-950/50"
               >
                 Start capturing
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:border-slate-300"
+                className="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:border-slate-300 dark:border-slate-700 dark:text-slate-100 dark:hover:border-slate-500"
               >
                 View dashboard
               </Link>
@@ -85,27 +109,27 @@ export default function Home() {
             <div className="absolute -right-15 -top-20 h-48 w-48 rounded-full bg-emerald-200/60 blur-3xl" />
             <div className="absolute -bottom-15 -left-10 h-48 w-48 rounded-full bg-sky-200/70 blur-3xl" />
             <div className="relative">
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 Fast camp workflow
               </h3>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 Patient profile → anthropometrics → mental health → sync.
               </p>
               <div className="mt-5 space-y-4">
-                <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                  <p className="text-sm font-medium text-slate-700">
+                <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                     Auto sync queue
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Offline entries stored locally. We push to server the moment
                     connectivity returns.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
-                  <p className="text-sm font-medium text-slate-700">
+                <div className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                     Admin visibility
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Charts, camp-level breakdowns, and Excel export for quick
                     donor reporting.
                   </p>

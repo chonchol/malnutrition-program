@@ -7,6 +7,7 @@ import {
     MessageCircle,
     Plus,
     TrendingUp,
+    UserPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,10 +18,12 @@ const links = [
     { href: "/dashboard/charts", label: "Analytics", icon: TrendingUp },
     { href: "/patients/new", label: "New assessment", icon: Plus },
     { href: "/dashboard/chat", label: "AI Assistant", icon: MessageCircle },
+    { href: "/dashboard/users", label: "Field users", icon: UserPlus, adminOnly: true },
 ];
 
-export default function AdminSidebar({ collapsed, onLogout }) {
+export default function AdminSidebar({ collapsed, onLogout, isAdmin = false }) {
     const pathname = usePathname();
+    const visibleLinks = links.filter((link) => !link.adminOnly || isAdmin);
 
     return (
         <aside
@@ -46,7 +49,7 @@ export default function AdminSidebar({ collapsed, onLogout }) {
             </div>
 
             <nav className="flex-1 space-y-2 p-4">
-                {links.map((link) => {
+                {visibleLinks.map((link) => {
                     const active =
                         pathname === link.href || pathname.startsWith(link.href + "/");
                     const Icon = link.icon;

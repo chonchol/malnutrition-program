@@ -68,6 +68,7 @@ export default function PatientHistoryPage() {
     <main className="min-h-screen">
       <AdminSidebar
         collapsed={sidebarCollapsed}
+        isAdmin={user?.role === "admin"}
         onLogout={async () => {
           await logout();
           router.push("/auth/login");

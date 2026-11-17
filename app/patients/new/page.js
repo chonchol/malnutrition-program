@@ -405,10 +405,10 @@ export default function NewPatientPage() {
   return (
     <main className="min-h-screen px-4 py-10">
       {!authChecked || authLoading ? (
-        <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Verifying authentication...</p>
+            <p className="text-slate-600 dark:text-slate-300">Verifying authentication...</p>
           </div>
         </div>
       ) : null}
@@ -420,14 +420,14 @@ export default function NewPatientPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
                 Field capture
               </p>
-              <h1 className="text-3xl font-semibold text-slate-900">
+              <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 Patient assessment
               </h1>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 Works offline. Auto-sync when connection resumes.
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm">
+            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
               <span
                 className={`h-2.5 w-2.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-amber-400"
                   }`}
@@ -440,7 +440,7 @@ export default function NewPatientPage() {
               )}
               <button
                 onClick={syncQueue}
-                className="ml-3 rounded-full border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-700 hover:border-emerald-400"
+                className="ml-3 rounded-full border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-700 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-200"
                 disabled={syncing}
               >
                 Sync now
@@ -610,7 +610,7 @@ export default function NewPatientPage() {
             {step === 1 && (
               <section className="grid gap-4 md:grid-cols-1">
                 {isDataFromPrevious && (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
                     <p className="font-semibold">
                       Previous Patient Record Found
                     </p>
@@ -638,7 +638,7 @@ export default function NewPatientPage() {
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <select
-                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${errors.campName
+                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-100" : ""} ${errors.campName
                             ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
                             : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                             }`}
@@ -670,7 +670,7 @@ export default function NewPatientPage() {
                       </p>
                       <p className="text-xs text-slate-500">রোগীর নাম</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">
+                        <p className="text-xs text-amber-600 font-medium mt-1 dark:text-amber-300">
                           From previous record
                         </p>
                       )}
@@ -723,7 +723,7 @@ export default function NewPatientPage() {
                       )}
                       <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                         <select
-                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200" : ""} ${errors.gender
+                          className={`mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none ${isDataFromPrevious ? "bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-100" : ""} ${errors.gender
                             ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
                             : "border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
                             }`}
@@ -753,7 +753,7 @@ export default function NewPatientPage() {
                       </p>
                       <p className="text-xs text-slate-500">ঠিকানা</p>
                       {isDataFromPrevious && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">
+                        <p className="text-xs text-amber-600 font-medium mt-1 dark:text-amber-300">
                           From previous record
                         </p>
                       )}
@@ -778,7 +778,7 @@ export default function NewPatientPage() {
             {step === 2 && (
               <section className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm">
                 {isDataFromPrevious && (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-4">
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-4 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
                     <p className="font-semibold">
                       Previous Patient Record Found
                     </p>
@@ -1156,7 +1156,7 @@ export default function NewPatientPage() {
                 </h3>
                 <div className="mt-4 space-y-4">
                   {errors.mentalHealth && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200">
                       {errors.mentalHealth}
                     </div>
                   )}

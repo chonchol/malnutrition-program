@@ -192,6 +192,7 @@ export default function ReportsPage() {
         <main className="min-h-screen">
             <AdminSidebar
                 collapsed={sidebarCollapsed}
+                isAdmin={user?.role === "admin"}
                 onLogout={async () => {
                     await logout();
                     router.push("/auth/login");
@@ -199,10 +200,10 @@ export default function ReportsPage() {
             />
 
             {loading ? (
-                <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-                        <p className="text-slate-600">Loading reports...</p>
+                        <p className="text-slate-600 dark:text-slate-300">Loading reports...</p>
                     </div>
                 </div>
             ) : (<div
